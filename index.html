@@ -474,6 +474,10 @@
             background: linear-gradient(90deg, var(--secondary), var(--electric));
         }
         
+        .monitor-service::before {
+            background: linear-gradient(90deg, #FF9D00, #FF4081);
+        }
+        
         .service-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(108, 99, 255, 0.3);
@@ -512,6 +516,13 @@
         
         .config-icon {
             background: linear-gradient(135deg, var(--secondary), var(--electric));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .monitor-icon {
+            background: linear-gradient(135deg, #FF9D00, #FF4081);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -1213,7 +1224,7 @@
             <div class="header-content">
                 <div class="logo fade-in">Fix<span>Alex</span></div>
                 <h1 class="fade-in delay-1">Вторая жизнь для вашей техники</h1>
-                <p class="tagline fade-in delay-1">Ремонт компьютеров, телевизоров, электросамокатов и велосипедов. Вернем производительность старой технике!</p>
+                <p class="tagline fade-in delay-1">Ремонт компьютеров, ноутбуков, телевизоров, мониторов, электросамокатов, велосипедов и разной электроники. Вернем производительность старой технике!</p>
                 
                 <div class="location-badge fade-in">
                     <i class="fas fa-map-marker-alt"></i>
@@ -1265,7 +1276,7 @@
                         <div class="service-icon pc-icon">
                             <i class="fas fa-laptop-code"></i>
                         </div>
-                        <h3>Ремонт компьютеров</h3>
+                        <h3>Ремонт компьютеров и ноутбуков</h3>
                         <p>Диагностика и ремонт ПК и ноутбуков любой сложности. Замена компонентов, чистка от пыли, устранение неисправностей.</p>
                     </div>
                 </div>
@@ -1287,16 +1298,25 @@
                         <p>Помогу сконфигурировать компьютер для ваших нужд. Сборка, настройка, установка ПО. Для ноутбуков - помощь с выбором оптимального соотношения цена/производительность.</p>
                     </div>
                 </div>
-                <div class="service-card pc-service fade-in delay-3">
+                <div class="service-card monitor-service fade-in delay-3">
+                    <div class="service-content">
+                        <div class="service-icon monitor-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <h3>Ремонт мониторов</h3>
+                        <p>Восстановление работоспособности LCD, LED, IPS мониторов. Ремонт подсветки, замена матриц, ремонт блоков питания и плат управления.</p>
+                    </div>
+                </div>
+                <div class="service-card pc-service fade-in">
                     <div class="service-content">
                         <div class="service-icon pc-icon">
                             <i class="fas fa-tv"></i>
                         </div>
-                        <h3>Ремонт телевизоров</h3>
-                        <p>Восстановление работоспособности ЖК, LED, OLED телевизоров. Ремонт матриц, блоков питания, замена подсветки.</p>
+                        <h3>Ремонт телевизоров и электроники</h3>
+                        <p>Восстановление работоспособности ЖК, LED, OLED телевизоров и другой электроники. Ремонт матриц, блоков питания, замена подсветки.</p>
                     </div>
                 </div>
-                <div class="service-card scooter-service fade-in">
+                <div class="service-card scooter-service fade-in delay-1">
                     <div class="service-content">
                         <div class="service-icon scooter-icon">
                             <i class="fas fa-scooter"></i>
@@ -1305,7 +1325,7 @@
                         <p>Диагностика и ремонт электросамокатов любой модели. Замена аккумуляторов, ремонт двигателей, настройка контроллеров.</p>
                     </div>
                 </div>
-                <div class="service-card scooter-service fade-in delay-1">
+                <div class="service-card scooter-service fade-in delay-2">
                     <div class="service-content">
                         <div class="service-icon scooter-icon">
                             <i class="fas fa-bicycle"></i>
@@ -1314,7 +1334,7 @@
                         <p>Обслуживание и ремонт электровелосипедов. Настройка мотор-колес, замена батарей, ремонт электронных систем.</p>
                     </div>
                 </div>
-                <div class="service-card remote-service fade-in delay-2">
+                <div class="service-card remote-service fade-in delay-3">
                     <div class="service-content">
                         <div class="service-icon remote-icon">
                             <i class="fas fa-globe"></i>
@@ -1497,11 +1517,11 @@
     <section class="about">
         <div class="container">
             <div class="section-title fade-in">
-                <h2>О мастере Алексе</h2>
+                <h2>О мастере Алексее</h2>
             </div>
             <div class="about-content">
                 <div class="about-text fade-in">
-                    <p>Меня зовут Алекс, и я профессионально занимаюсь ремонтом и модернизацией компьютерной техники и электротранспорта с 2008 года. За это время я помог сотням клиентов восстановить работоспособность их устройств и продлить жизнь старой технике.</p>
+                    <p>Меня зовут Алексей, и я профессионально занимаюсь ремонтом и модернизацией компьютерной техники и электротранспорта с 2008 года. За это время я помог тысячам клиентов восстановить работоспособность их устройств и продлить жизнь старой технике.</p>
                     <p>Специализируюсь на апгрейде устаревших компьютеров и ноутбуков - знаю, как добиться максимальной производительности при минимальных вложениях.</p>
                     <p><strong>Физически работаю в Северске и Томске</strong>, а также оказываю услуги удаленной поддержки по всей России и за границей. Подключусь к вашему компьютеру и решу проблему дистанционно.</p>
                     <p>Использую только качественные комплектующие и современное диагностическое оборудование. Предоставляю скидки пенсионерам на все виды услуг.</p>
@@ -1509,7 +1529,7 @@
                 <div class="about-image fade-in delay-1">
                     <div class="about-image-content">
                         <i class="fas fa-award"></i>
-                        <h3>Алекс - ваш персональный IT-специалист</h3>
+                        <h3>Алексей - ваш персональный IT-специалист</h3>
                         <p>Более 15 лет успешной работы</p>
                     </div>
                 </div>
@@ -1617,7 +1637,7 @@
                     <a href="#">О мастере</a>
                 </div>
                 <div class="copyright">
-                    <p>Ремонт и модернизация компьютеров, телевизоров и электротранспорта © 2023</p>
+                    <p>Ремонт и модернизация компьютеров, телевизоров и электротранспорта © 2008-<span id="currentYear"></span></p>
                 </div>
             </div>
         </div>
@@ -1802,6 +1822,9 @@
         // Анимация появления элементов при прокрутке
         document.addEventListener('DOMContentLoaded', function() {
             createUniverse();
+            
+            // Обновление текущего года в футере
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
             
             const fadeElements = document.querySelectorAll('.fade-in');
             
