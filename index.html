@@ -50,7 +50,7 @@
             position: relative;
         }
         
-        /* Навигационная панель */
+        /* Навигационная панель - СКРЫТА НА МОБИЛЬНЫХ */
         .nav-panel {
             position: fixed;
             top: 20px;
@@ -1103,6 +1103,20 @@
         
         /* Responsive Styles */
         @media (max-width: 768px) {
+            /* Скрытие навигации на мобильных устройствах */
+            .nav-panel {
+                display: none;
+            }
+            
+            /* Смещаем кнопку скачивания выше, так как навигация скрыта */
+            .download-btn {
+                top: 20px;
+            }
+            
+            .download-buttons {
+                top: 80px;
+            }
+            
             h1 {
                 font-size: 2.5rem;
             }
@@ -1149,31 +1163,24 @@
             }
             
             .download-btn {
-                top: 70px;
                 right: 10px;
                 padding: 10px 20px;
                 font-size: 0.9rem;
             }
             
             .download-buttons {
-                top: 130px;
                 right: 10px;
             }
             
-            .nav-panel {
-                top: 10px;
-                flex-wrap: wrap;
-                justify-content: center;
-                max-width: 90%;
-            }
-            
-            .nav-btn {
-                font-size: 0.8rem;
-                padding: 6px 12px;
-            }
-            
             header {
-                padding: 140px 0 100px;
+                padding: 100px 0 80px;
+            }
+        }
+        
+        /* Показываем навигацию только на больших экранах */
+        @media (min-width: 769px) {
+            .nav-panel {
+                display: flex;
             }
         }
         
@@ -1207,7 +1214,7 @@
     </style>
 </head>
 <body>
-    <!-- Навигационная панель -->
+    <!-- Навигационная панель - СКРЫТА НА МОБИЛЬНЫХ -->
     <nav class="nav-panel">
         <button class="nav-btn active" data-target="services">Услуги</button>
         <button class="nav-btn" data-target="upgrade">Апгрейд</button>
