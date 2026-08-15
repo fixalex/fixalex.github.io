@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Райнон Парисинка — Остров сокровищ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Inter:wght@300;400;600;700&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a1a0a;
+            color: #b8d9b0;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 30% 40%, #1a3a1a 0%, #051005 100%);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 0.8 0 0 0 0 0 0.08 0"/></filter><rect width="200" height="200" filter="url(%23noise)" opacity="0.15"/></svg>');
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(10, 30, 10, 0.88);
+            backdrop-filter: blur(2px);
+            border: 3px solid #5a9a4a;
+            border-radius: 2.5rem;
+            padding: 2.5rem 2rem;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.9),
+                inset 0 0 80px rgba(70, 200, 70, 0.05),
+                0 0 0 1px #3a7a2a inset;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 3px double #5a9a4a;
+            padding-bottom: 1.8rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '🌿';
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0a1a0a;
+            padding: 0 15px;
+            font-size: 1.8rem;
+            color: #6aba5a;
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            font-size: 3.2rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #90e080, #5aba4a, #3a8a2a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(100, 200, 80, 0.15);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #8aba7a;
+            margin-top: 0.3rem;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 3px;
+        }
+
+        .header p i {
+            color: #6aba5a;
+            margin: 0 10px;
+        }
+
+        .sub-garage {
+            display: inline-block;
+            background: #1a3a1a;
+            padding: 0.4rem 2rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            border: 1px solid #5a9a4a;
+            color: #b8d9b0;
+            letter-spacing: 3px;
+            margin-top: 0.8rem;
+            font-family: 'Cinzel', serif;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 992px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+
+        .map-wrapper {
+            background: #0f2a0f;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 3px solid #4a8a3a;
+            box-shadow: 
+                inset 0 0 60px rgba(0,0,0,0.8),
+                0 10px 40px rgba(0,0,0,0.7);
+            position: relative;
+        }
+
+        .map-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 2.2rem;
+            background: linear-gradient(135deg, #5a9a4a, #1a3a1a, #5a9a4a);
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: 
+                radial-gradient(ellipse at 30% 40%, #2a5a2a 0%, #0f2a0f 100%);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 2px solid #4a8a3a;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #3a7a3a 0%, #0f2a0f 90%),
+                repeating-linear-gradient(45deg, #1a3a1a 0px, #1a3a1a 3px, #0f2a0f 3px, #0f2a0f 12px);
+            background-blend-mode: overlay;
+        }
+
+        .map-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(90, 200, 80, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(90, 200, 80, 0.06) 1px, transparent 1px);
+            background-size: 10% 10%;
+            pointer-events: none;
+        }
+
+        .map-roads {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .road {
+            position: absolute;
+            background: rgba(90, 200, 80, 0.12);
+            border: 1px dashed rgba(100, 220, 90, 0.1);
+        }
+
+        .road-h {
+            height: 3px;
+            width: 80%;
+            top: 48%;
+            left: 10%;
+        }
+        .road-v {
+            width: 3px;
+            height: 70%;
+            left: 48%;
+            top: 15%;
+        }
+        .road-h2 {
+            height: 3px;
+            width: 35%;
+            top: 22%;
+            left: 15%;
+        }
+        .road-h3 {
+            height: 3px;
+            width: 30%;
+            top: 78%;
+            right: 15%;
+        }
+        .road-v2 {
+            width: 3px;
+            height: 30%;
+            left: 30%;
+            bottom: 10%;
+        }
+        .road-diag {
+            height: 3px;
+            width: 40%;
+            top: 60%;
+            left: 5%;
+            transform: rotate(25deg);
+            transform-origin: left center;
+        }
+
+        .map-marker {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #5a9a4a, #1a3a1a);
+            border: 3px solid #7ada6a;
+            box-shadow: 
+                0 0 30px rgba(100, 220, 80, 0.2),
+                inset 0 0 30px rgba(0,0,0,0.6),
+                0 0 0 1px #5a9a4a inset;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            color: #b8d9b0;
+            text-align: center;
+            line-height: 1.2;
+            padding: 5px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .map-marker i {
+            font-size: 1.5rem;
+            color: #b0f0a0;
+            margin-bottom: 2px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+        }
+
+        .map-marker .marker-label {
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            opacity: 0.9;
+            background: rgba(0,0,0,0.4);
+            padding: 1px 6px;
+            border-radius: 10px;
+            border: 1px solid rgba(100, 220, 90, 0.2);
+        }
+
+        .map-marker:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+            border-color: #b0f0a0;
+            box-shadow: 
+                0 0 50px rgba(100, 220, 80, 0.3),
+                inset 0 0 30px rgba(0,0,0,0.6);
+            z-index: 20;
+        }
+
+        .map-marker .puls {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(100, 220, 80, 0.1);
+            animation: pulsePirate 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulsePirate {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .marker-dump { top: 22%; left: 20%; }
+        .marker-garage { top: 55%; left: 48%; }
+        .marker-mountain { top: 12%; left: 78%; }
+        .marker-spring { top: 82%; left: 72%; }
+
+        .compass {
+            position: absolute;
+            bottom: 12%;
+            right: 8%;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #2a5a2a, #0a1a0a);
+            border: 3px solid #5a9a4a;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #6aba5a;
+            transform: rotate(-15deg);
+            z-index: 5;
+            opacity: 0.6;
+        }
+
+        .compass i {
+            filter: drop-shadow(0 0 10px rgba(100, 200, 80, 0.2));
+        }
+
+        .pirate-stamp {
+            position: absolute;
+            bottom: 5%;
+            left: 5%;
+            font-family: 'Cinzel', serif;
+            color: #5a9a4a;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            opacity: 0.4;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #3a7a2a;
+            transform: rotate(-5deg);
+            z-index: 5;
+        }
+
+        .pirate-stamp i {
+            color: #6aba5a;
+        }
+
+        .map-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem 1.5rem;
+            justify-content: center;
+            margin-top: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            background: #0f2a0f;
+            border-radius: 1rem;
+            border: 2px solid #4a8a3a;
+            font-family: 'Cinzel', serif;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.7rem;
+            color: #8aba7a;
+            letter-spacing: 1px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #7ada6a;
+            background: radial-gradient(circle at 30% 30%, #5a9a4a, #1a3a1a);
+        }
+
+        .legend-skull {
+            color: #6aba5a;
+            font-size: 1rem;
+        }
+
+        .locations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .location-item {
+            background: linear-gradient(145deg, #1a3a1a, #0f2a0f);
+            border-radius: 1.5rem;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid #4a8a3a;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .location-item::before {
+            content: '🌿';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 1.2rem;
+            opacity: 0.15;
+            transform: rotate(15deg);
+        }
+
+        .location-item:hover {
+            border-color: #7ada6a;
+            transform: translateX(8px);
+            box-shadow: 0 0 30px rgba(100, 220, 80, 0.05);
+            background: linear-gradient(145deg, #2a5a2a, #1a3a1a);
+        }
+
+        .loc-icon {
+            font-size: 2rem;
+            width: 50px;
+            text-align: center;
+            color: #6aba5a;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .loc-info {
+            flex: 1;
+        }
+
+        .loc-info h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: #b0f0a0;
+            letter-spacing: 2px;
+        }
+
+        .loc-info p {
+            font-size: 0.8rem;
+            color: #8aba7a;
+            font-style: italic;
+        }
+
+        .loc-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-loc {
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            border: 2px solid #5a9a4a;
+            background: #1a3a1a;
+            color: #b8d9b0;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-loc i {
+            font-size: 0.8rem;
+        }
+
+        .btn-loc:hover {
+            background: #4a8a3a;
+            border-color: #7ada6a;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(100, 220, 80, 0.1);
+        }
+
+        .btn-loc.primary {
+            background: #2a5a2a;
+            border-color: #7ada6a;
+        }
+
+        .btn-loc.primary:hover {
+            background: #5a9a4a;
+        }
+
+        .btn-loc.map-btn {
+            background: #0f2a0f;
+            border-color: #4a8a3a;
+        }
+
+        .btn-loc.map-btn:hover {
+            background: #2a5a2a;
+            border-color: #7ada6a;
+        }
+
+        .btn-route {
+            background: #2a5a2a;
+            border: 2px solid #7ada6a;
+            padding: 0.6rem 2rem;
+            font-size: 0.85rem;
+            border-radius: 40px;
+            color: #b0f0a0;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+        }
+
+        .btn-route:hover {
+            background: #5a9a4a;
+            box-shadow: 0 0 40px rgba(100, 220, 80, 0.15);
+            transform: scale(1.02);
+        }
+
+        .cards-section {
+            margin-top: 2.5rem;
+        }
+
+        .cards-section h3 {
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            color: #b0f0a0;
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+            letter-spacing: 4px;
+        }
+
+        .cards-section h3 i {
+            color: #6aba5a;
+            margin: 0 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #1a3a1a, #0f2a0f);
+            border-radius: 2rem;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border: 2px solid #4a8a3a;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::after {
+            content: '🌿';
+            position: absolute;
+            bottom: -10px;
+            right: -5px;
+            font-size: 3rem;
+            opacity: 0.05;
+            transform: rotate(-20deg);
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: #7ada6a;
+            box-shadow: 0 18px 35px rgba(0,0,0,0.9), 0 0 30px rgba(100, 220, 80, 0.05);
+        }
+
+        .card-icon {
+            font-size: 2.8rem;
+            color: #6aba5a;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        .card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: #b0f0a0;
+            letter-spacing: 2px;
+        }
+
+        .card .badge {
+            display: inline-block;
+            background: #1a3a1a;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            border: 1px solid #5a9a4a;
+            color: #8aba7a;
+            margin-top: 0.3rem;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+        }
+
+        .footer-note {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #5a7a4a;
+            border-top: 2px solid #2a5a2a;
+            padding-top: 1.8rem;
+            letter-spacing: 2px;
+            font-family: 'Cinzel', serif;
+        }
+
+        .footer-note i {
+            color: #6aba5a;
+            margin: 0 6px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #1a3a1a;
+            max-width: 520px;
+            width: 100%;
+            border-radius: 2.5rem;
+            padding: 2.5rem 2rem;
+            border: 3px solid #5a9a4a;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.9), 0 0 0 1px #3a7a2a inset;
+            animation: modalFade 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-card::before {
+            content: '🌿';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            font-size: 2.5rem;
+            opacity: 0.15;
+            transform: rotate(20deg);
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(0.92) translateY(30px) rotate(-2deg); }
+            to { opacity: 1; transform: scale(1) translateY(0) rotate(0); }
+        }
+
+        .modal-card .modal-icon { font-size: 4rem; color: #6aba5a; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+        .modal-card h2 { font-family: 'Cinzel', serif; font-size: 2rem; color: #b0f0a0; letter-spacing: 4px; }
+        .modal-card .modal-sub { color: #8aba7a; font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 1rem; border-bottom: 2px dashed #4a8a3a; padding-bottom: 0.8rem; font-family: 'Cinzel', serif; }
+        .modal-card p { color: #b8d9b0; line-height: 1.7; font-size: 1rem; margin-bottom: 1.2rem; }
+        .modal-card .modal-story { background: #0f2a0f; padding: 1rem 1.2rem; border-radius: 1.5rem; border-left: 4px solid #7ada6a; font-style: italic; color: #b8d9b0; margin: 1.5rem 0; font-size: 0.95rem; border: 1px solid #4a8a3a; }
+        .modal-close-btn { background: #2a5a2a; border: 2px solid #5a9a4a; color: #b0f0a0; padding: 0.8rem 2.5rem; border-radius: 60px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Cinzel', serif; letter-spacing: 2px; }
+        .modal-close-btn:hover { background: #5a9a4a; border-color: #7ada6a; box-shadow: 0 0 30px rgba(100, 220, 80, 0.1); }
+
+        @media (max-width: 640px) {
+            .container { padding: 1.5rem 1rem; }
+            .header h1 { font-size: 2rem; letter-spacing: 3px; }
+            .main-grid { gap: 1.5rem; }
+            .location-item { flex-wrap: wrap; gap: 0.8rem; }
+            .loc-actions { width: 100%; justify-content: flex-start; }
+            .map-marker { width: 56px; height: 56px; }
+            .map-marker i { font-size: 1.2rem; }
+            .map-marker .marker-label { font-size: 0.4rem; }
+            .compass { width: 50px; height: 50px; font-size: 1.8rem; bottom: 8%; right: 5%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ШАПКА -->
+    <div class="header">
+        <h1><i class="fas fa-leaf" style="color: #6aba5a; -webkit-text-fill-color: initial; background: none; font-size: 2.2rem; margin-right: 10px;"></i> Райнон Парисинка</h1>
+        <p><i class="fas fa-map"></i> Зелёный остров сокровищ <i class="fas fa-tree"></i></p>
+        <div class="sub-garage">
+            <i class="fas fa-tools"></i> Йо-хо-хо! • ГАРАЖНЫЙ ФЛИБУСТЬЕР <i class="fas fa-oil-can"></i>
+        </div>
+    </div>
+
+    <!-- ОСНОВНАЯ СЕТКА -->
+    <div class="main-grid">
+
+        <!-- КАРТА -->
+        <div class="map-wrapper">
+            <div class="map-container" id="mapContainer">
+                <div class="map-grid"></div>
+                
+                <div class="map-roads">
+                    <div class="road road-h"></div>
+                    <div class="road road-v"></div>
+                    <div class="road road-h2"></div>
+                    <div class="road road-h3"></div>
+                    <div class="road road-v2"></div>
+                    <div class="road road-diag"></div>
+                </div>
+
+                <!-- Маркеры -->
+                <div class="map-marker marker-dump" data-loc="dump">
+                    <div class="puls"></div>
+                    <i class="fas fa-trash-alt"></i>
+                    <span class="marker-label">Помойка</span>
+                </div>
+                <div class="map-marker marker-garage" data-loc="garage">
+                    <div class="puls"></div>
+                    <i class="fas fa-warehouse"></i>
+                    <span class="marker-label">Гараж</span>
+                </div>
+                <div class="map-marker marker-mountain" data-loc="mountain">
+                    <div class="puls"></div>
+                    <i class="fas fa-mountain"></i>
+                    <span class="marker-label">Гора</span>
+                </div>
+                <div class="map-marker marker-spring" data-loc="spring">
+                    <div class="puls"></div>
+                    <i class="fas fa-water"></i>
+                    <span class="marker-label">Родник</span>
+                </div>
+
+                <!-- Компас -->
+                <div class="compass">
+                    <i class="fas fa-compass"></i>
+                </div>
+
+                <!-- Пиратская печать -->
+                <div class="pirate-stamp">
+                    <i class="fas fa-leaf"></i> Здесь был капитан
+                </div>
+            </div>
+
+            <!-- Легенда -->
+            <div class="map-legend">
+                <span class="legend-item"><span class="legend-dot"></span> Сокровище</span>
+                <span class="legend-item"><i class="fas fa-road" style="color: #5a7a4a;"></i> Тропа</span>
+                <span class="legend-item"><span class="legend-skull">🌿</span> Оазис</span>
+                <span class="legend-item"><i class="fas fa-arrows-spin" style="color: #7ada6a;"></i> Жми на метку!</span>
+            </div>
+        </div>
+
+        <!-- СПИСОК ЛОКАЦИЙ -->
+        <div class="locations-list">
+            <div class="location-item" data-loc="dump">
+                <div class="loc-icon"><i class="fas fa-trash-alt"></i></div>
+                <div class="loc-info">
+                    <h4>Помойка</h4>
+                    <p>Сокровища среди хлама</p>
+                </div>
+                <div class="loc-actions">
+                    <button class="btn-loc primary open-modal-btn" data-loc="dump"><i class="fas fa-info-circle"></i> Детали</button>
+                    <button class="btn-loc map-btn" onclick="scrollToMap()"><i class="fas fa-map"></i> Карта</button>
+                </div>
+            </div>
+
+            <div class="location-item" data-loc="garage">
+                <div class="loc-icon"><i class="fas fa-warehouse"></i></div>
+                <div class="loc-info">
+                    <h4>Гараж</h4>
+                    <p>Штаб пиратов</p>
+                </div>
+                <div class="loc-actions">
+                    <button class="btn-loc primary open-modal-btn" data-loc="garage"><i class="fas fa-info-circle"></i> Детали</button>
+                    <button class="btn-loc map-btn" onclick="scrollToMap()"><i class="fas fa-map"></i> Карта</button>
+                </div>
+            </div>
+
+            <div class="location-item" data-loc="mountain">
+                <div class="loc-icon"><i class="fas fa-mountain"></i></div>
+                <div class="loc-info">
+                    <h4>Уралова Гора</h4>
+                    <p>Воронье гнездо</p>
+                </div>
+                <div class="loc-actions">
+                    <button class="btn-loc primary open-modal-btn" data-loc="mountain"><i class="fas fa-info-circle"></i> Детали</button>
+                    <button class="btn-loc map-btn" onclick="scrollToMap()"><i class="fas fa-map"></i> Карта</button>
+                </div>
+            </div>
+
+            <div class="location-item" data-loc="spring">
+                <div class="loc-icon"><i class="fas fa-water"></i></div>
+                <div class="loc-info">
+                    <h4>Водоем с ключом</h4>
+                    <p>Источник жизни</p>
+                </div>
+                <div class="loc-actions">
+                    <button class="btn-loc primary open-modal-btn" data-loc="spring"><i class="fas fa-info-circle"></i> Детали</button>
+                    <button class="btn-loc map-btn" onclick="scrollToMap()"><i class="fas fa-map"></i> Карта</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 0.5rem; text-align: right;">
+                <button class="btn-route" onclick="alert('🌿 Путь проложен! От гаража к помойке, затем на гору и к роднику. Следуй за зелёным компасом, капитан! 🌴')">
+                    <i class="fas fa-route"></i> Проложить курс
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- КАРТОЧКИ -->
+    <div class="cards-section">
+        <h3><i class="fas fa-leaf"></i> Сокровища зелёного района <i class="fas fa-leaf"></i></h3>
+        <div class="grid">
+            <div class="card" data-loc="dump">
+                <div class="card-icon"><i class="fas fa-trash-alt"></i></div>
+                <h3>Помойка</h3>
+                <div class="badge"><i class="fas fa-leaf"></i> Легендарная</div>
+            </div>
+            <div class="card" data-loc="garage">
+                <div class="card-icon"><i class="fas fa-warehouse"></i></div>
+                <h3>Гараж</h3>
+                <div class="badge"><i class="fas fa-users"></i> Штаб</div>
+            </div>
+            <div class="card" data-loc="mountain">
+                <div class="card-icon"><i class="fas fa-mountain"></i></div>
+                <h3>Уралова Гора</h3>
+                <div class="badge"><i class="fas fa-eye"></i> Обзорная</div>
+            </div>
+            <div class="card" data-loc="spring">
+                <div class="card-icon"><i class="fas fa-water"></i></div>
+                <h3>Водоем с ключом</h3>
+                <div class="badge"><i class="fas fa-leaf"></i> Родник</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <i class="fas fa-screwdriver-wrench"></i> Райнон Парисинка — зелёный остров, где каждый гараж — сундук с историей <i class="fas fa-screwdriver-wrench"></i>
+    </div>
+</div>
+
+<!-- МОДАЛКА -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-card">
+        <div class="modal-icon" id="modalIcon"><i class="fas fa-warehouse"></i></div>
+        <h2 id="modalTitle">Гараж</h2>
+        <div class="modal-sub" id="modalSub">🌿 Штаб пиратов</div>
+        <p id="modalDesc">Здесь пахнет соляркой и свободой. Вечные разговоры о жизни, политике и железе.</p>
+        <div class="modal-story" id="modalStory">
+            <i class="fas fa-quote-left" style="margin-right: 8px; color: #7ada6a;"></i>
+            "Мужики собираются, травят байки, а кто-то чинит старую «Волгу». Душа района."
+        </div>
+        <button class="modal-close-btn" id="closeModal"><i class="fas fa-times"></i> Закрыть</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ===== ДАННЫЕ ЛОКАЦИЙ =====
+        const locationsData = {
+            dump: {
+                icon: '<i class="fas fa-trash-alt"></i>',
+                title: 'Помойка',
+                sub: '🗑️ Сокровища среди хлама',
+                desc: 'Горы хлама, но для настоящего пирата это — сокровищница. Тут можно найти редкую деталь, старый инструмент или просто пофилософствовать над бренностью бытия.',
+                // ⬇️ ИЗМЕНЕНИЕ — теперь «Днепр» вместо «Москвича»
+                story: '"Помню, Гудвин нашёл там карбюратор от «Днепра», а через неделю уже гнал на нём по району. Вот это удача!"'
+            },
+            garage: {
+                icon: '<i class="fas fa-warehouse"></i>',
+                title: 'Гараж',
+                sub: '🌿 Штаб пиратов',
+                desc: 'Сюда приходят не столько чинить, сколько общаться. Печка, раскладной стул, ящик с инструментами — и вечер пролетает незаметно.',
+                story: '"Здесь мы решаем все вопросы мира. И заодно меняем масло. Без гаража — как без рук."'
+            },
+            mountain: {
+                icon: '<i class="fas fa-mountain"></i>',
+                title: 'Уралова Гора',
+                sub: '⛰️ Воронье гнездо',
+                desc: 'С вершины открывается панорама на весь район. Пираты приходят сюда, чтобы покурить, посмотреть на закат и обсудить планы на завтрашний рейд.',
+                story: '"Говорят, если подняться с утра, можно увидеть, как весь район просыпается. Но мы-то знаем — лучшее время там вечером, с термосом."'
+            },
+            spring: {
+                icon: '<i class="fas fa-water"></i>',
+                title: 'Водоем с ключом',
+                sub: '💧 Источник жизни',
+                desc: 'Ключевая вода — холодная и чистая. Пираты приходят сюда ополоснуть руки после работы, набрать воды для чая или просто послушать журчание.',
+                story: '"Вода здесь вкуснее, чем в городе. И тишина. Только ветер в проводах да птицы. Райское место."'
+            }
+        };
+
+        // ===== МОДАЛКА =====
+        const overlay = document.getElementById('modalOverlay');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalSub = document.getElementById('modalSub');
+        const modalDesc = document.getElementById('modalDesc');
+        const modalStory = document.getElementById('modalStory');
+        const closeBtn = document.getElementById('closeModal');
+
+        function openModal(locKey) {
+            const data = locationsData[locKey];
+            if (!data) return;
+            modalIcon.innerHTML = data.icon;
+            modalTitle.textContent = data.title;
+            modalSub.textContent = data.sub;
+            modalDesc.textContent = data.desc;
+            modalStory.innerHTML = `<i class="fas fa-quote-left" style="margin-right: 8px; color: #7ada6a;"></i> ${data.story}`;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && overlay.classList.contains('active')) closeModal();
+        });
+
+        // ===== СОБЫТИЯ =====
+        document.querySelectorAll('.map-marker').forEach(marker => {
+            marker.addEventListener('click', function() {
+                const loc = this.dataset.loc;
+                if (loc) openModal(loc);
+            });
+        });
+
+        document.querySelectorAll('.open-modal-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const loc = this.dataset.loc;
+                if (loc) openModal(loc);
+            });
+        });
+
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function() {
+                const loc = this.dataset.loc;
+                if (loc) openModal(loc);
+            });
+        });
+
+        document.querySelectorAll('.location-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (e.target.closest('button')) return;
+                const loc = this.dataset.loc;
+                if (loc) openModal(loc);
+            });
+        });
+
+        window.scrollToMap = function() {
+            const mapEl = document.getElementById('mapContainer');
+            if (mapEl) {
+                mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const wrapper = mapEl.closest('.map-wrapper');
+                wrapper.style.borderColor = '#7ada6a';
+                wrapper.style.boxShadow = '0 0 60px rgba(100, 220, 80, 0.2), inset 0 0 60px rgba(0,0,0,0.8)';
+                setTimeout(() => {
+                    wrapper.style.borderColor = '#4a8a3a';
+                    wrapper.style.boxShadow = 'inset 0 0 60px rgba(0,0,0,0.8), 0 10px 40px rgba(0,0,0,0.7)';
+                }, 2500);
+            }
+        };
+    })();
+</script>
+
+</body>
+</html>
