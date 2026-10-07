@@ -2,401 +2,184 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Расчет света и интернета — кооператив</title>
-
-<!-- Библиотека html2canvas для скриншотов -->
+<title>Расчет света и интернета — кооператив V5.00</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f4f6f9;
-    margin: 0;
-    padding: 20px;
-    color: #222;
-  }
-  h1 { font-size: 22px; margin: 0 0 6px; }
-  .topbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-  .topbar .spacer { flex: 1; }
-  .datetime {
-    background: #fff;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    color: #333;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
-    border-left: 4px solid #3b82f6;
-    font-variant-numeric: tabular-nums;
-  }
-  .datetime b { color: #1e40af; }
-  .wrap { max-width: 1250px; margin: 0 auto; }
-  .panel {
-    background: #fff;
-    border-radius: 10px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    margin-bottom: 16px;
-  }
-  .settings {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    align-items: flex-end;
-  }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 12px; color: #555; }
-  .field input, .field select {
-    padding: 8px 10px;
-    border: 1px solid #ccd;
-    border-radius: 6px;
-    font-size: 14px;
-    width: 170px;
-  }
-  .field input:focus, .field select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+* { box-sizing: border-box; }
+body { font-family: Arial, Helvetica, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #222; }
+h1 { font-size: 22px; margin: 0 0 6px; }
+.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 14px; }
+.topbar .spacer { flex: 1; }
+.datetime { background: #fff; border-radius: 8px; padding: 8px 14px; font-size: 13px; color: #333; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 4px solid #3b82f6; }
+.datetime b { color: #1e40af; }
+.wrap { max-width: 1350px; margin: 0 auto; }
+.panel { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 16px; }
+.settings { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 12px; color: #555; }
+.field input, .field select { padding: 8px 10px; border: 1px solid #ccd; border-radius: 6px; font-size: 14px; width: 170px; }
+.field input:focus, .field select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { padding: 7px 8px; text-align: center; border-bottom: 1px solid #e6e9ef; }
-  th {
-    background: #eef2f8;
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: .3px;
-    color: #445;
-  }
-  td.name { text-align: left; font-weight: 600; white-space: nowrap; }
-  td input {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #ccd;
-    border-radius: 5px;
-    text-align: right;
-    font-size: 14px;
-  }
-  td.name {
-    padding: 7px 8px;
-    user-select: text;
-    cursor: text;
-  }
-  tbody tr:hover { background: #f9fbff; }
-  tfoot td {
-    font-weight: 700;
-    background: #eef7ee;
-    border-top: 2px solid #cfe3cf;
-  }
-  .num { font-variant-numeric: tabular-nums; }
-  .total-line {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    font-size: 15px;
-  }
-  .total-line b { font-size: 17px; }
-  .loss { color: #b91c1c; }
-  .ok { color: #15803d; }
-  .buttons { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-  button {
-    padding: 9px 16px;
-    border: none;
-    border-radius: 7px;
-    font-size: 14px;
-    cursor: pointer;
-    background: #3b82f6;
-    color: #fff;
-    transition: .15s;
-  }
-  button:hover { background: #2563eb; }
-  button.gray { background: #e5e7eb; color: #333; }
-  button.gray:hover { background: #d1d5db; }
-  button.green { background: #16a34a; }
-  button.green:hover { background: #15803d; }
-  button.orange { background: #f59e0b; }
-  button.orange:hover { background: #d97706; }
-  button.red { background: #dc2626; }
-  button.red:hover { background: #b91c1c; }
-  button.purple { background: #7c3aed; }
-  button.purple:hover { background: #6d28d9; }
-  button.blue { background: #2563eb; }
-  button.blue:hover { background: #1e40af; }
-  button.gold {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    font-weight: 600;
-  }
-  button.gold:hover { background: linear-gradient(135deg, #d97706, #b45309); }
-  button.small { padding: 4px 10px; font-size: 13px; }
-  button.messenger { padding: 12px 18px; font-size: 15px; font-weight: 600; }
-  button.max { background: #6366f1; }
-  button.max:hover { background: #4f46e5; }
-  button.tg { background: #229ed9; }
-  button.tg:hover { background: #1c84b8; }
-  button.wa { background: #25d366; }
-  button.wa:hover { background: #1ebe5d; }
-  .hint { font-size: 12.5px; color: #666; margin-top: 8px; line-height: 1.5; }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 12px;
-    background: #fee2e2;
-    color: #b91c1c;
-  }
-  .badge.ok { background: #dcfce7; color: #15803d; }
-  .save-note {
-    margin-left: auto;
-    font-size: 13px;
-    color: #15803d;
-    transition: opacity .3s;
-    opacity: 0;
-  }
-  .save-note.show { opacity: 1; }
+/* Кнопки над таблицей */
+.table-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.table-tools .left, .table-tools .right { display: flex; gap: 8px; align-items: center; }
+.table-tools button { padding: 6px 12px; font-size: 12.5px; font-weight: 600; border-radius: 6px; }
+.tool-hint { font-size: 12px; color: #666; }
 
-  /* Оверлей "снимок делается..." */
-  .shoot-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.55);
-    color: #fff;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    font-size: 18px;
-  }
-  .shoot-overlay.show { display: flex; }
+/* Таблица без colgroup, без table-layout: fixed */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 7px 6px; text-align: center; border-bottom: 1px solid #e6e9ef; }
+th { background: #eef2f8; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; color: #445; }
 
-  /* ===== Модальные окна ===== */
-  .modal-bg {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.45);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  .modal-bg.show { display: flex; }
-  .modal {
-    background: #fff;
-    border-radius: 12px;
-    padding: 22px 26px;
-    min-width: 360px;
-    max-width: 95vw;
-    box-shadow: 0 10px 40px rgba(0,0,0,.25);
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  .modal h3 { margin: 0 0 14px; font-size: 18px; }
-  .modal .row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-  .modal label { font-size: 12px; color: #555; }
-  .modal input {
-    padding: 9px 11px;
-    border: 1px solid #ccd;
-    border-radius: 6px;
-    font-size: 14px;
-    width: 100%;
-  }
-  .modal input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
-  .modal .hintline { font-size: 12px; color: #777; margin-top: -8px; margin-bottom: 12px; }
-  .modal .btns { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
-  .modal .btns button { padding: 8px 16px; }
-  .modal .btns .left { margin-right: auto; }
+td.name { text-align: left; font-weight: 600; white-space: nowrap; padding: 7px 8px; user-select: text; cursor: text; }
+td input { width: 100%; padding: 6px 6px; border: 1px solid #ccd; border-radius: 5px; text-align: right; font-size: 14px; }
+tbody tr:hover { background: #f9fbff; }
+tbody tr.row-error td { background: #fee2e2 !important; }
+tbody tr.row-error td input { border-color: #dc2626; background: #fff5f5; }
+tbody tr.row-error td.name::after { content: " ⚠ ошибка"; color: #dc2626; font-size: 11px; font-weight: 700; }
+tbody tr.row-off td { background: #f3f4f6; }
+tbody tr.row-off td.inet-cell { color: #999; font-style: italic; }
 
-  /* ===== Модальное окно "Спасибо разработчику" ===== */
-  .thanks-modal {
-    text-align: center;
-    min-width: 400px;
-  }
-  .thanks-modal .heart {
-    font-size: 48px;
-    margin-bottom: 6px;
-    animation: pulse 1.6s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-  }
-  .thanks-modal h3 {
-    margin: 0 0 6px;
-    font-size: 20px;
-    text-align: center;
-  }
-  .thanks-modal .sub {
-    color: #666;
-    font-size: 13.5px;
-    margin-bottom: 18px;
-  }
-  .thanks-modal .dev-name {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1e40af;
-    margin-bottom: 16px;
-  }
-  .thanks-modal .phone-card {
-    background: #f0f7ff;
-    border: 2px solid #bfdbfe;
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 16px;
-  }
-  .thanks-modal .phone-label {
-    font-size: 12px;
-    color: #555;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-  }
-  .thanks-modal .phone-num {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1e3a8a;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
-  .thanks-modal .copy-btn {
-    background: #10b981;
-    padding: 8px 18px;
-    font-size: 13.5px;
-  }
-  .thanks-modal .copy-btn:hover { background: #059669; }
-  .thanks-modal .banks {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-  }
-  .thanks-modal .bank {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 10px 18px;
-    font-weight: 700;
-    font-size: 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.05);
-  }
-  .thanks-modal .bank.alfa { color: #ef3124; }
-  .thanks-modal .bank.tbank { color: #ffdd2d; background: #1a1a1a; }
-  .thanks-modal .close-btn {
-    background: #e5e7eb;
-    color: #333;
-    padding: 9px 22px;
-  }
-  .thanks-modal .close-btn:hover { background: #d1d5db; }
+tfoot td { font-weight: 700; background: #eef7ee; border-top: 2px solid #cfe3cf; }
+.num { font-variant-numeric: tabular-nums; }
 
-  /* ===== Модальное окно "Отправка скриншота" ===== */
-  .share-modal {
-    text-align: center;
-    min-width: 420px;
-  }
-  .share-modal h3 { text-align: center; }
-  .share-modal .sub {
-    color: #666;
-    font-size: 13.5px;
-    margin-bottom: 18px;
-  }
-  .share-modal .preview {
-    max-width: 100%;
-    max-height: 260px;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  }
-  .share-modal .messenger-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .share-modal .messenger-grid button {
-    padding: 14px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-  .share-modal .messenger-grid .ico {
-    font-size: 22px;
-    line-height: 1;
-  }
-  .share-modal .info {
-    font-size: 12px;
-    color: #666;
-    background: #fef3c7;
-    border-left: 3px solid #f59e0b;
-    border-radius: 6px;
-    padding: 10px 12px;
-    text-align: left;
-    margin-bottom: 14px;
-    line-height: 1.5;
-  }
+.total-line { display: flex; flex-wrap: wrap; gap: 24px; font-size: 15px; }
+.total-line b { font-size: 17px; }
+.loss { color: #b91c1c; }
+.ok { color: #15803d; }
 
-  /* ===== Модальное окно "Помощь" ===== */
-  .help-modal { min-width: 560px; max-width: 720px; }
-  .help-modal h3 { text-align: center; margin-bottom: 18px; }
-  .help-modal .help-block {
-    background: #f8fafc;
-    border-left: 4px solid #3b82f6;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 12px;
-    font-size: 13.5px;
-    line-height: 1.55;
-  }
-  .help-modal .help-block b { color: #1e40af; }
-  .help-modal .help-block .ico-big {
-    font-size: 17px;
-    margin-right: 6px;
-  }
-  .help-modal .help-block ol, .help-modal .help-block ul {
-    margin: 6px 0 0 20px;
-    padding: 0;
-  }
-  .help-modal .help-block li { margin-bottom: 4px; }
-  .help-modal .help-tip {
-    background: #fef9c3;
-    border-left: 4px solid #eab308;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-top: 8px;
-    font-size: 13px;
-    line-height: 1.5;
-  }
+.buttons { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+button { padding: 9px 16px; border: none; border-radius: 7px; font-size: 14px; cursor: pointer; background: #3b82f6; color: #fff; transition: .15s; }
+button:hover { background: #2563eb; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:disabled:hover { background: #e5e7eb; }
+button.gray { background: #e5e7eb; color: #333; }
+button.gray:hover:not(:disabled) { background: #d1d5db; }
+button.green { background: #16a34a; }
+button.green:hover { background: #15803d; }
+button.orange { background: #f59e0b; }
+button.orange:hover { background: #d97706; }
+button.red { background: #dc2626; }
+button.red:hover { background: #b91c1c; }
+button.purple { background: #7c3aed; }
+button.purple:hover { background: #6d28d9; }
+button.blue { background: #2563eb; }
+button.blue:hover { background: #1e40af; }
+button.teal { background: #0d9488; }
+button.teal:hover:not(:disabled) { background: #0f766e; }
+button.gold { background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 600; }
+button.gold:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+button.small { padding: 4px 8px; font-size: 12px; }
+button.messenger { padding: 12px 18px; font-size: 15px; font-weight: 600; }
+button.max { background: #6366f1; } button.max:hover { background: #4f46e5; }
+button.tg { background: #229ed9; } button.tg:hover { background: #1c84b8; }
+button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
 
-  @media (max-width: 900px) {
-    th, td { padding: 5px 4px; font-size: 12px; }
-    .field input, .field select { width: 140px; }
-    .share-modal .messenger-grid { grid-template-columns: 1fr; }
-    .help-modal { min-width: auto; }
-  }
+.undo-hint { font-size: 11.5px; color: #777; margin-left: 4px; }
 
-  body.shooting .buttons,
-  body.shooting .shoot-hide { display: none !important; }
+.autosave-fab { position: fixed; bottom: 24px; right: 24px; z-index: 900; padding: 14px 20px; font-size: 15px; font-weight: 600; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,.25); background: #e5e7eb; color: #333; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; }
+.autosave-fab:hover { background: #d1d5db; }
+.autosave-fab.active { background: #16a34a; color: #fff; }
+.autosave-fab.active:hover { background: #15803d; }
+.autosave-fab .dot { width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; }
+.autosave-fab.active .dot { background: #fff; }
+
+.autosave-indicator { position: fixed; bottom: 90px; right: 24px; padding: 6px 12px; background: #dcfce7; color: #15803d; border-radius: 20px; font-size: 12.5px; opacity: 0; transition: opacity .3s; z-index: 899; font-weight: 600; }
+.autosave-indicator.show { opacity: 1; }
+
+.hint { font-size: 12.5px; color: #666; margin-top: 8px; line-height: 1.5; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 12px; background: #fee2e2; color: #b91c1c; }
+.badge.ok { background: #dcfce7; color: #15803d; }
+.save-note { margin-left: auto; font-size: 13px; color: #15803d; opacity: 0; transition: opacity .3s; }
+.save-note.show { opacity: 1; }
+
+.shoot-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); color: #fff; display: none; align-items: center; justify-content: center; z-index: 2000; font-size: 18px; }
+.shoot-overlay.show { display: flex; }
+
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
+.modal-bg.show { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 22px 26px; min-width: 360px; max-width: 95vw; box-shadow: 0 10px 40px rgba(0,0,0,.25); max-height: 90vh; overflow-y: auto; }
+.modal h3 { margin: 0 0 14px; font-size: 18px; }
+.modal .row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.modal label { font-size: 12px; color: #555; }
+.modal input { padding: 9px 11px; border: 1px solid #ccd; border-radius: 6px; font-size: 14px; width: 100%; }
+.modal .hintline { font-size: 12px; color: #777; margin-top: -8px; margin-bottom: 12px; }
+.modal .btns { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.modal .btns button { padding: 8px 16px; }
+.modal .btns .left { margin-right: auto; }
+
+.checkbox-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f3f4f6; border-radius: 8px; margin-bottom: 12px; cursor: pointer; }
+.checkbox-row input { width: 18px; height: 18px; cursor: pointer; accent-color: #16a34a; flex-shrink: 0; }
+.checkbox-row label { font-size: 13px; color: #333; cursor: pointer; margin: 0; line-height: 1.4; }
+.checkbox-row .small-note { display: block; font-size: 11.5px; color: #777; margin-top: 2px; }
+
+.errors-list { background: #fef2f2; border: 2px solid #fecaca; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; max-height: 320px; overflow-y: auto; }
+.errors-list .err-item { display: flex; justify-content: space-between; gap: 10px; padding: 6px 8px; border-bottom: 1px dashed #fecaca; font-size: 13.5px; align-items: center; }
+.errors-list .err-item:last-child { border-bottom: none; }
+.errors-list .err-item .who { font-weight: 600; color: #7f1d1d; }
+.errors-list .err-item .nums { color: #991b1b; white-space: nowrap; }
+.errors-list .err-item .nums b { color: #dc2626; }
+.errors-list .err-item .goto { background: #dc2626; color: #fff; border: none; border-radius: 5px; padding: 3px 8px; font-size: 11.5px; cursor: pointer; }
+
+.thanks-modal { text-align: center; min-width: 400px; }
+.thanks-modal .heart { font-size: 48px; margin-bottom: 6px; }
+.thanks-modal h3 { margin: 0 0 6px; font-size: 20px; text-align: center; }
+.thanks-modal .sub { color: #666; font-size: 13.5px; margin-bottom: 18px; }
+.thanks-modal .dev-name { font-size: 20px; font-weight: 700; color: #1e40af; margin-bottom: 16px; }
+.thanks-modal .phone-card { background: #f0f7ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; }
+.thanks-modal .phone-label { font-size: 12px; color: #555; margin-bottom: 6px; }
+.thanks-modal .phone-num { font-size: 24px; font-weight: 700; color: #1e3a8a; margin-bottom: 12px; }
+.thanks-modal .copy-btn { background: #10b981; padding: 8px 18px; font-size: 13.5px; }
+.thanks-modal .banks { display: flex; justify-content: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.thanks-modal .bank { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 18px; font-weight: 700; font-size: 14px; }
+.thanks-modal .bank.alfa { color: #ef3124; }
+.thanks-modal .bank.tbank { color: #ffdd2d; background: #1a1a1a; }
+.thanks-modal .close-btn { background: #e5e7eb; color: #333; padding: 9px 22px; }
+
+.share-modal { text-align: center; min-width: 420px; }
+.share-modal h3 { text-align: center; }
+.share-modal .preview { max-width: 100%; max-height: 260px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 18px; }
+.share-modal .messenger-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.share-modal .messenger-grid button { padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+.share-modal .info { font-size: 12px; color: #666; background: #fef3c7; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 10px 12px; text-align: left; margin-bottom: 14px; }
+
+.help-modal { min-width: 560px; max-width: 720px; }
+.help-modal h3 { text-align: center; margin-bottom: 18px; }
+.help-modal .help-block { background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; font-size: 13.5px; line-height: 1.55; }
+.help-modal .help-block b { color: #1e40af; }
+.help-modal .help-tip { background: #fef9c3; border-left: 4px solid #eab308; border-radius: 8px; padding: 12px 16px; font-size: 13px; }
+
+@media (max-width: 900px) {
+  th, td { padding: 4px 3px; font-size: 12px; }
+  .field input, .field select { width: 140px; }
+  .share-modal .messenger-grid { grid-template-columns: 1fr; }
+  .help-modal { min-width: auto; }
+}
+body.shooting .buttons,
+body.shooting .shoot-hide,
+body.shooting .autosave-fab,
+body.shooting .autosave-indicator,
+body.shooting .table-tools { display: none !important; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- ШАПКА С ДАТОЙ И ВРЕМЕНЕМ -->
   <div class="topbar">
     <h1>⚡ Расчет за свет и интернет — кооператив</h1>
     <div class="spacer"></div>
-    <div class="datetime" id="datetimeBox">
+    <div class="datetime">
       📅 <b id="dateNow">—</b> &nbsp; 🕒 <b id="timeNow">—</b>
     </div>
   </div>
 
-  <!-- НАСТРОЙКИ -->
   <div class="panel">
     <div class="settings">
       <div class="field">
@@ -430,62 +213,69 @@
 
     <div class="buttons">
       <button class="green" onclick="saveAll()">💾 Сохранить</button>
-      <button class="orange" onclick="shiftReadings()">↪ Перенести тек. → пред.</button>
       <button class="purple" onclick="makeScreenshot()">📸 Сделать скриншот</button>
-      <button class="gray" onclick="openAddModal()">➕ Добавить пользователя</button>
       <button class="gray" onclick="exportJSON()">⬇ Экспорт (JSON)</button>
       <button class="gray" onclick="document.getElementById('importFile').click()">⬆ Импорт (JSON)</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
       <button class="gray" onclick="resetReadings()">🧹 Сбросить показания</button>
       <button class="gray" onclick="resetAll()">❌ Удалить все данные</button>
-      <button class="blue" onclick="openHelpModal()">❓ Помощь / Инструкция</button>
-      <button class="gold" onclick="openThanksModal()">🙏 Поблагодарить разработчика</button>
+      <button class="blue" onclick="openHelpModal()">❓ Помощь</button>
+      <button class="gold" onclick="openThanksModal()">🙏 Разработчику</button>
+      <span class="undo-hint">Ctrl+Z — откатить</span>
       <span class="save-note" id="saveNote">✅ Сохранено</span>
     </div>
 
     <div class="hint">
-      Введите показания каждого гаража — расход, доли, потери и суммы посчитаются автоматически.
-      Потери = главный счётчик − сумма расхода всех гаражей.
-      Интернет делится поровну на всех.
-      <br>Не знаете с чего начать? Нажмите <b>«❓ Помощь / Инструкция»</b>.
+      Введите показания. Потери = главный − сумма гаражей. Интернет — на активных.
+      Красная строка = текущее меньше предыдущего (проверьте!).
     </div>
   </div>
 
-  <!-- ТАБЛИЦА -->
   <div class="panel" style="overflow-x:auto;">
+
+    <div class="table-tools shoot-hide">
+      <div class="left">
+        <button class="green" onclick="openAddModal()">➕ Добавить пользователя</button>
+      </div>
+      <div class="right">
+        <span class="tool-hint">Переносит все показания «Тек.» → «Пред.» (перед этим проверяются ошибки)</span>
+        <button class="orange" onclick="shiftReadings()">↪ Тек. → Пред.</button>
+      </div>
+    </div>
+
     <table id="tbl">
       <thead>
         <tr>
-          <th>✎</th>
-          <th>№</th>
-          <th>Фамилия</th>
-          <th>Пред.</th>
-          <th>Тек.</th>
-          <th>Расход, кВт·ч</th>
-          <th>Доля, %</th>
-          <th>Свет, руб</th>
-          <th>Потери, руб</th>
-          <th>Интернет, руб</th>
-          <th>Итого, руб</th>
+          <th style="width:40px">✎</th>
+          <th style="width:40px">№</th>
+          <th style="width:200px">Фамилия</th>
+          <th style="width:90px">Пред.</th>
+          <th style="width:90px">Тек.</th>
+          <th style="width:90px">Расход, кВт·ч</th>
+          <th style="width:70px">Доля, %</th>
+          <th style="width:80px">Свет, руб</th>
+          <th style="width:80px">Потери, руб</th>
+          <th style="width:80px">Интернет, руб</th>
+          <th style="width:90px">Итого, руб</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
       <tfoot>
         <tr>
-          <td colspan="2"></td>
-          <td colspan="2">ИТОГО</td>
-          <td id="sCons" class="num">0</td>
-          <td id="sPerc" class="num">100</td>
-          <td id="sOwn" class="num">0</td>
-          <td id="sLoss" class="num">0</td>
-          <td id="sInet" class="num">0</td>
-          <td id="sTotal" class="num">0</td>
+          <td colspan="3">ИТОГО</td>
+          <td></td>
+          <td></td>
+          <td id="sCons">0</td>
+          <td id="sPerc">0</td>
+          <td id="sOwn">0</td>
+          <td id="sLoss">0</td>
+          <td id="sInet">0</td>
+          <td id="sTotal">0</td>
         </tr>
       </tfoot>
     </table>
   </div>
 
-  <!-- ИТОГИ -->
   <div class="panel">
     <div class="total-line">
       <div>Расход главного: <b id="mCons" class="num">0</b> кВт·ч</div>
@@ -499,18 +289,18 @@
 
 </div>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ ===== -->
+<button class="autosave-fab" id="autosaveFab" onclick="toggleAutosave()">
+  <span class="dot"></span>
+  <span id="autosaveLabel">Автосохранение: выкл</span>
+</button>
+<div class="autosave-indicator" id="autosaveIndicator">✅ Автосохранено</div>
+
+<!-- МОДАЛКА: ДОБАВИТЬ -->
 <div class="modal-bg" id="addModalBg">
   <div class="modal">
     <h3>➕ Добавить пользователя</h3>
-    <div class="row">
-      <label>Фамилия</label>
-      <input type="text" id="addName" placeholder="Например: Иванов И" autocomplete="off">
-    </div>
-    <div class="row">
-      <label>Позиция в таблице (номер)</label>
-      <input type="number" id="addPos" min="1" step="1">
-    </div>
+    <div class="row"><label>Фамилия</label><input type="text" id="addName" placeholder="Иванов И"></div>
+    <div class="row"><label>Позиция в таблице</label><input type="number" id="addPos" min="1" step="1"></div>
     <div class="hintline" id="addPosHint">По умолчанию — последний</div>
     <div class="btns">
       <button class="gray" onclick="closeAddModal()">Отмена</button>
@@ -519,19 +309,19 @@
   </div>
 </div>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ===== -->
+<!-- МОДАЛКА: РЕДАКТИРОВАТЬ -->
 <div class="modal-bg" id="editModalBg">
   <div class="modal">
     <h3>✎ Редактировать пользователя</h3>
-    <div class="row">
-      <label>Фамилия</label>
-      <input type="text" id="editName" autocomplete="off">
-    </div>
-    <div class="row">
-      <label>Позиция в таблице (номер)</label>
-      <input type="number" id="editPos" min="1" step="1">
-    </div>
+    <div class="row"><label>Фамилия</label><input type="text" id="editName"></div>
+    <div class="row"><label>Позиция в таблице</label><input type="number" id="editPos" min="1" step="1"></div>
     <div class="hintline" id="editPosHint"></div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="editDisabled">
+      <span>🚫 Отключён от интернета
+        <span class="small-note">Не участвует в интернете. Потери и свет — как обычно.</span>
+      </span>
+    </label>
     <div class="btns">
       <button class="red left" onclick="deleteFromEdit()">🗑 Удалить</button>
       <button class="gray" onclick="closeEditModal()">Отмена</button>
@@ -540,765 +330,726 @@
   </div>
 </div>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО "СПАСИБО РАЗРАБОТЧИКУ" ===== -->
+<!-- МОДАЛКА: ОШИБКИ ПЕРЕНОСА -->
+<div class="modal-bg" id="errorsModalBg">
+  <div class="modal" style="min-width: 460px;">
+    <h3>⚠️ Ошибки в показаниях</h3>
+    <div style="font-size:13px;color:#555;margin-bottom:14px;">
+      Прежде чем переносить, исправьте — у этих людей <b>текущее меньше предыдущего</b>:
+    </div>
+    <div class="errors-list" id="errorsList"></div>
+    <div class="btns">
+      <button class="gray" onclick="closeErrorsModal()">Понятно</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА: СПАСИБО -->
 <div class="modal-bg" id="thanksModalBg">
   <div class="modal thanks-modal">
     <div class="heart">❤️</div>
     <h3>Спасибо за поддержку!</h3>
-    <div class="sub">Если приложение помогает — можно отблагодарить разработчика</div>
-
+    <div class="sub">Если приложение помогает — можно отблагодарить</div>
     <div class="dev-name">Алексей Гришин</div>
-
     <div class="phone-card">
-      <div class="phone-label">Телефон (для перевода по СБП)</div>
-      <div class="phone-num" id="devPhone">+7 906 198-39-29</div>
+      <div class="phone-label">ТЕЛЕФОН (СБП)</div>
+      <div class="phone-num">+7 906 198-39-29</div>
       <button class="copy-btn" onclick="copyPhone()" id="copyBtn">📋 Скопировать номер</button>
     </div>
-
     <div class="banks">
       <div class="bank alfa">Альфа-Банк</div>
       <div class="bank tbank">Т-Банк</div>
     </div>
-
-    <div class="btns" style="justify-content:center">
-      <button class="close-btn" onclick="closeThanksModal()">Закрыть</button>
-    </div>
+    <button class="close-btn" onclick="closeThanksModal()">Закрыть</button>
   </div>
 </div>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО "ОТПРАВИТЬ СКРИНШОТ" ===== -->
+<!-- МОДАЛКА: ОТПРАВИТЬ СКРИНШОТ -->
 <div class="modal-bg" id="shareModalBg">
   <div class="modal share-modal">
     <h3>📤 Отправить скриншот</h3>
-    <div class="sub">Куда отправить расчёт?</div>
-
-    <img id="sharePreview" class="preview" alt="Скриншот расчёта">
-
-    <div class="info" id="shareInfo">
-      💡 На <b>телефоне</b> откроется меню «Поделиться» — выберите MAX, Telegram или WhatsApp.<br>
-      💡 На <b>компьютере</b> скриншот скачается в папку «Загрузки», откройте мессенджер и прикрепите файл.
+    <img id="sharePreview" class="preview">
+    <div class="info">
+      На телефоне — меню «Поделиться». На компьютере — файл скачается, прикрепите в мессенджере.
     </div>
-
     <div class="messenger-grid">
-      <button class="max messenger" onclick="shareTo('max')">
-        <span class="ico">💬</span>
-        MAX
-      </button>
-      <button class="tg messenger" onclick="shareTo('telegram')">
-        <span class="ico">✈️</span>
-        Telegram
-      </button>
-      <button class="wa messenger" onclick="shareTo('whatsapp')">
-        <span class="ico">🟢</span>
-        WhatsApp
-      </button>
+      <button class="max messenger" onclick="shareTo('max')">💬 MAX</button>
+      <button class="tg messenger" onclick="shareTo('telegram')">✈️ Telegram</button>
+      <button class="wa messenger" onclick="shareTo('whatsapp')">🟢 WhatsApp</button>
     </div>
-
     <div class="messenger-grid" style="grid-template-columns:1fr">
-      <button class="gray messenger" onclick="downloadOnly()">
-        <span class="ico">⬇</span>
-        Просто скачать файл
-      </button>
+      <button class="gray messenger" onclick="downloadOnly()">⬇ Просто скачать</button>
     </div>
-
-    <div class="btns" style="justify-content:center">
-      <button class="gray" onclick="closeShareModal()">Закрыть</button>
-    </div>
+    <button class="gray" onclick="closeShareModal()">Закрыть</button>
   </div>
 </div>
 
-<!-- ===== МОДАЛЬНОЕ ОКНО "ПОМОЩЬ / ИНСТРУКЦИЯ" ===== -->
+<!-- МОДАЛКА: ПОМОЩЬ -->
 <div class="modal-bg" id="helpModalBg">
   <div class="modal help-modal">
     <h3>❓ Помощь / Инструкция</h3>
 
-    <div class="help-block">
-      <span class="ico-big">1️⃣</span><b>Заполните настройки сверху</b>
-      <ul>
-        <li><b>Тариф</b> — стоимость 1 кВт·ч (по умолчанию 5,46 ₽).</li>
-        <li><b>Главный — предыдущее / текущее</b> — показания общего счётчика кооператива.</li>
-        <li><b>Способ распределения потерь</b> — как делить разницу между главным счётчиком и суммой гаражей (по % или поровну).</li>
-        <li><b>Интернет</b> — абонентская плата за видеонаблюдение в месяц.</li>
-        <li><b>Месяцев</b> — за сколько месяцев считаете (1, 3, 12…).</li>
-      </ul>
+    <div class="help-block"><b>1. Настройки сверху</b><br>
+      Тариф (5,46 ₽), показания главного счётчика, интернет (220 ₽/мес), месяцев.
     </div>
 
-    <div class="help-block">
-      <span class="ico-big">2️⃣</span><b>Внесите показания гаражей</b>
-      <ul>
-        <li>В столбце <b>«Пред.»</b> — что было в прошлом месяце.</li>
-        <li>В столбце <b>«Тек.»</b> — что сейчас.</li>
-        <li>Расход, доля %, суммы — считаются сами.</li>
-      </ul>
+    <div class="help-block"><b>2. Показания гаражей</b><br>
+      «Пред.» — что было, «Тек.» — что сейчас. Расход и суммы считаются сами.
+      Если Тек меньше Пред — строка <b>краснеет</b>.
     </div>
 
-    <div class="help-block">
-      <span class="ico-big">3️⃣</span><b>Сохраните</b>
-      <ul>
-        <li>Кнопка <b>«💾 Сохранить»</b> — данные остаются в браузере, не пропадут после закрытия.</li>
-        <li>Автоматически не сохраняется — не забывайте нажимать!</li>
-      </ul>
+    <div class="help-block"><b>3. Кнопки над таблицей</b><br>
+      <b>«➕ Добавить пользователя»</b> — слева. <b>«↪ Тек. → Пред.»</b> — справа.
+      Перед переносом проверяются ошибки.
     </div>
 
-    <div class="help-block">
-      <span class="ico-big">🔄</span><b>Раз в месяц — «Перенести тек. → пред.»</b>
-      <ul>
-        <li>Когда снимаете новые показания, нажмите <b>«↪ Перенести тек. → пред.»</b>.</li>
-        <li>Текущие показания станут предыдущими, а поля «Тек.» обнулятся — вводите новые цифры.</li>
-        <li>Старые цифры руками переписывать не нужно.</li>
-      </ul>
+    <div class="help-block"><b>4. Откат — Ctrl+Z</b><br>
+      Нажмите <b>Ctrl+Z</b> (на Mac — <b>Cmd+Z</b>), чтобы откатить последнее изменение (до 50 шагов).
     </div>
 
-    <div class="help-block">
-      <span class="ico-big">👥</span><b>Добавить / изменить / удалить человека</b>
-      <ul>
-        <li><b>Добавить</b> — кнопка «➕ Добавить пользователя», можно выбрать номер позиции.</li>
-        <li><b>Изменить или удалить</b> — кнопка <b>«✎»</b> в первом столбце строки.</li>
-        <li>Фамилию <b>нельзя</b> менять напрямую в таблице — только через «✎».</li>
-      </ul>
+    <div class="help-block"><b>5. Автосохранение</b><br>
+      Кнопка внизу справа. Когда зелёная — данные сохраняются через 1 сек после изменения.
     </div>
 
-    <div class="help-block">
-      <span class="ico-big">📸</span><b>Скриншот и отправка</b>
-      <ul>
-        <li><b>«📸 Сделать скриншот»</b> — сохраняет PNG всей таблицы с датой и временем.</li>
-        <li>После создания открывается окно с кнопками <b>MAX</b>, <b>Telegram</b>, <b>WhatsApp</b>.</li>
-        <li>На телефоне — откроется меню «Поделиться», выберите мессенджер.</li>
-        <li>На компьютере — файл скачается, прикрепите его в мессенджере вручную.</li>
-      </ul>
+    <div class="help-block"><b>6. Отключённые от интернета</b><br>
+      Галочка в редакторе. Такие люди <b>не платят за интернет</b>, но свет и потери считаются как обычно.
     </div>
 
-    <div class="help-block">
-      <span class="ico-big">⬇⬆</span><b>Резервная копия (Экспорт / Импорт)</b>
-      <ul>
-        <li><b>Экспорт (JSON)</b> — сохраняет файл со всеми данными. Держите как резервную копию.</li>
-        <li><b>Импорт (JSON)</b> — восстанавливает данные из файла.</li>
-        <li>Полезно переносить данные на другой компьютер или телефон.</li>
-      </ul>
+    <div class="help-block"><b>7. Скриншот</b><br>
+      Кнопка «📸 Сделать скриншот» — сохраняет PNG с датой и временем. Кнопки и панель над таблицей на фото не попадают.
     </div>
 
     <div class="help-tip">
-      <b>💡 Совет:</b> каждый месяц перед переносом показаний делайте <b>Экспорт (JSON)</b> — так у вас
-      останется архив за все месяцы. Также удобно использовать кнопку <b>«📸 Сделать скриншот»</b>,
-      чтобы быстро отправить расчёт соседям в чат.
+      💡 Включите автосохранение. Ошиблись — нажмите <b>Ctrl+Z</b>.
     </div>
 
-    <div class="btns" style="justify-content:center; margin-top:18px;">
-      <button class="green" onclick="closeHelpModal()">Понятно, спасибо!</button>
+    <div class="btns" style="justify-content:center;margin-top:18px;">
+      <button class="green" onclick="closeHelpModal()">Понятно</button>
     </div>
   </div>
 </div>
 
-<!-- Оверлей "снимок делается..." -->
-<div class="shoot-overlay" id="shootOverlay">
-  📸 Создаём скриншот, подождите…
-</div>
+<div class="shoot-overlay" id="shootOverlay">📸 Создаём скриншот…</div>
 
 <script>
-/* ============ СТАРТОВЫЙ СПИСОК ============ */
-const DEFAULT_OWNERS = [
+var DEFAULT_OWNERS = [
   "Дзабраев С","Кандауров","Гришин","Волков","Черенков","Прущинский",
   "Чопоров","Щетинин","Письменный","Чигирев","Елисеев","Задравова М",
   "Завлова-Вавилов","Смирнов","Аксенов","Арендаренко","Демко","Хомченко",
   "Шашков","Муковинов Несм","Пичугин","Деркач"
 ];
+var LS_KEY = "svet_koperativ_v1";
+var MAX_HISTORY = 50;
 
-const LS_KEY = "svet_koperativ_v1";
-
-/* ============ МОДЕЛЬ ДАННЫХ ============ */
-let state = {
-  tariff: 5.46,
-  mainPrev: 0,
-  mainCur: 0,
-  lossMode: "percent",
-  inet: 220,
-  months: 1,
-  users: []
+var state = {
+  tariff: 5.46, mainPrev: 0, mainCur: 0,
+  lossMode: "percent", inet: 220, months: 1,
+  users: [], autosave: false
 };
 
-let editIndex = -1;
+var editIndex = -1;
+var lastBlob = null, lastFile = null, lastDataURL = null;
+var autosaveTimer = null;
+var history = [];
+var historyLock = false;
 
-/* Переменные для отправки скриншота */
-let lastBlob = null;    // Blob с PNG
-let lastFile = null;    // File с PNG
-let lastDataURL = null; // data:image/png;base64
-
-/* ============ ДАТА И ВРЕМЯ ============ */
 function updateDateTime() {
-  const now = new Date();
-  const dd = String(now.getDate()).padStart(2, '0');
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const yyyy = now.getFullYear();
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mi = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
-
-  document.getElementById('dateNow').textContent = `${dd}.${mm}.${yyyy}`;
-  document.getElementById('timeNow').textContent = `${hh}:${mi}:${ss}`;
+  var n = new Date();
+  function p(x){ return String(x).padStart(2,'0'); }
+  document.getElementById('dateNow').textContent = p(n.getDate()) + '.' + p(n.getMonth()+1) + '.' + n.getFullYear();
+  document.getElementById('timeNow').textContent = p(n.getHours()) + ':' + p(n.getMinutes()) + ':' + p(n.getSeconds());
 }
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
-/* ============ ЗАГРУЗКА / СОХРАНЕНИЕ ============ */
+function pushHistory() {
+  if (historyLock) return;
+  try {
+    if (!Array.isArray(state.users)) state.users = [];
+    var snap = {
+      tariff: parseFloat(document.getElementById('tariff').value) || 0,
+      mainPrev: parseFloat(document.getElementById('mainPrev').value) || 0,
+      mainCur: parseFloat(document.getElementById('mainCur').value) || 0,
+      lossMode: document.getElementById('lossMode').value,
+      inet: parseFloat(document.getElementById('inet').value) || 0,
+      months: parseInt(document.getElementById('months').value) || 1,
+      users: state.users.map(function(u){
+        return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
+      })
+    };
+    history.push(snap);
+    if (history.length > MAX_HISTORY) history.shift();
+  } catch(e) { console.error(e); }
+}
+
+function undoAction() {
+  if (history.length === 0) { alert("Нечего откатывать."); return; }
+  historyLock = true;
+  var s = history.pop();
+  try {
+    document.getElementById('tariff').value = s.tariff;
+    document.getElementById('mainPrev').value = s.mainPrev;
+    document.getElementById('mainCur').value = s.mainCur;
+    document.getElementById('lossMode').value = s.lossMode;
+    document.getElementById('inet').value = s.inet;
+    document.getElementById('months').value = s.months;
+    state.users = Array.isArray(s.users) ? s.users : [];
+  } catch(e) { console.error(e); }
+  renderRows();
+  calculate();
+  historyLock = false;
+  showToast("↶ Откат выполнен (" + history.length + " в истории)");
+  saveAll(false);
+}
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;left:50%;top:30px;transform:translateX(-50%);background:#0f766e;color:#fff;padding:10px 18px;border-radius:8px;z-index:3000;font-size:13.5px;box-shadow:0 6px 20px rgba(0,0,0,.3);max-width:90vw;";
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2200);
+}
+
 function loadFromStorage() {
-  const raw = localStorage.getItem(LS_KEY);
+  var raw = localStorage.getItem(LS_KEY);
   if (!raw) {
-    state.users = DEFAULT_OWNERS.map(n => ({ name: n, prev: 0, cur: 0 }));
+    state.users = DEFAULT_OWNERS.map(function(n){ return { name: n, prev: 0, cur: 0, disabled: false }; });
     return;
   }
   try {
-    const d = JSON.parse(raw);
-    state.tariff   = d.tariff   ?? 5.46;
-    state.mainPrev = d.mainPrev ?? 0;
-    state.mainCur  = d.mainCur  ?? 0;
-    state.lossMode = d.lossMode ?? "percent";
-    state.inet     = d.inet     ?? 220;
-    state.months   = d.months   ?? 1;
-    state.users    = Array.isArray(d.users) && d.users.length
-      ? d.users
-      : DEFAULT_OWNERS.map(n => ({ name: n, prev: 0, cur: 0 }));
-  } catch (e) {
-    alert("Не удалось прочитать сохранённые данные, загружен стандартный список.");
-    state.users = DEFAULT_OWNERS.map(n => ({ name: n, prev: 0, cur: 0 }));
+    var d = JSON.parse(raw);
+    state.tariff   = parseFloat(d.tariff)   || 5.46;
+    state.mainPrev = parseFloat(d.mainPrev) || 0;
+    state.mainCur  = parseFloat(d.mainCur)  || 0;
+    state.lossMode = d.lossMode || "percent";
+    state.inet     = parseFloat(d.inet)     || 220;
+    state.months   = parseInt(d.months)     || 1;
+    state.autosave = !!d.autosave;
+    if (Array.isArray(d.users) && d.users.length > 0) {
+      state.users = d.users.map(function(u){
+        return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
+      });
+    } else {
+      state.users = DEFAULT_OWNERS.map(function(n){ return { name: n, prev: 0, cur: 0, disabled: false }; });
+    }
+  } catch(e) {
+    state.users = DEFAULT_OWNERS.map(function(n){ return { name: n, prev: 0, cur: 0, disabled: false }; });
   }
 }
 
-function saveAll() {
-  state.tariff   = parseFloat(document.getElementById('tariff').value) || 0;
-  state.mainPrev = parseFloat(document.getElementById('mainPrev').value) || 0;
-  state.mainCur  = parseFloat(document.getElementById('mainCur').value) || 0;
-  state.lossMode = document.getElementById('lossMode').value;
-  state.inet     = parseFloat(document.getElementById('inet').value) || 0;
-  state.months   = parseInt(document.getElementById('months').value) || 1;
-
-  const rows = document.querySelectorAll('#tbody tr');
-  state.users = [...rows].map((tr, i) => ({
-    name: state.users[i]?.name ?? "—",
-    prev: parseFloat(tr.querySelector('.prev').value) || 0,
-    cur:  parseFloat(tr.querySelector('.cur').value) || 0
-  }));
-
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
-
-  const note = document.getElementById('saveNote');
-  note.classList.add('show');
-  setTimeout(() => note.classList.remove('show'), 1500);
+function saveAll(showNote) {
+  if (showNote === undefined) showNote = true;
+  try {
+    state.tariff   = parseFloat(document.getElementById('tariff').value) || 0;
+    state.mainPrev = parseFloat(document.getElementById('mainPrev').value) || 0;
+    state.mainCur  = parseFloat(document.getElementById('mainCur').value) || 0;
+    state.lossMode = document.getElementById('lossMode').value;
+    state.inet     = parseFloat(document.getElementById('inet').value) || 0;
+    state.months   = parseInt(document.getElementById('months').value) || 1;
+    var rows = document.querySelectorAll('#tbody tr');
+    state.users = Array.prototype.map.call(rows, function(tr, i){
+      var old = state.users[i] || {};
+      return { name: old.name || "—", prev: parseFloat(tr.querySelector('.prev').value) || 0, cur: parseFloat(tr.querySelector('.cur').value) || 0, disabled: !!old.disabled };
+    });
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    if (showNote) {
+      var note = document.getElementById('saveNote');
+      note.classList.add('show');
+      setTimeout(function(){ note.classList.remove('show'); }, 1500);
+    }
+  } catch(e) { console.error(e); }
 }
 
-/* ============ ОТРИСОВКА ============ */
+function toggleAutosave() {
+  state.autosave = !state.autosave;
+  updateAutosaveUI();
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
+}
+function updateAutosaveUI() {
+  var fab = document.getElementById('autosaveFab');
+  var lbl = document.getElementById('autosaveLabel');
+  if (state.autosave) { fab.classList.add('active'); lbl.textContent = "Автосохранение: вкл"; }
+  else { fab.classList.remove('active'); lbl.textContent = "Автосохранение: выкл"; }
+}
+function scheduleAutosave() {
+  if (!state.autosave) return;
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(function(){
+    saveAll(false);
+    var ind = document.getElementById('autosaveIndicator');
+    ind.classList.add('show');
+    setTimeout(function(){ ind.classList.remove('show'); }, 1200);
+  }, 1000);
+}
+
 function renderAll() {
-  document.getElementById('tariff').value   = state.tariff;
-  document.getElementById('mainPrev').value = state.mainPrev;
-  document.getElementById('mainCur').value  = state.mainCur;
-  document.getElementById('lossMode').value = state.lossMode;
-  document.getElementById('inet').value     = state.inet;
-  document.getElementById('months').value   = state.months;
+  try {
+    document.getElementById('tariff').value   = state.tariff;
+    document.getElementById('mainPrev').value = state.mainPrev;
+    document.getElementById('mainCur').value  = state.mainCur;
+    document.getElementById('lossMode').value = state.lossMode;
+    document.getElementById('inet').value     = state.inet;
+    document.getElementById('months').value   = state.months;
+  } catch(e) { console.error(e); }
   renderRows();
   calculate();
+  updateAutosaveUI();
 }
 
 function renderRows() {
-  const tbody = document.getElementById('tbody');
+  var tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
-  state.users.forEach((u, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><button class="gray small shoot-hide" title="Редактировать / удалить" onclick="openEditModal(${i})">✎</button></td>
-      <td>${i + 1}</td>
-      <td class="name">${escapeHtml(u.name)}</td>
-      <td><input type="number" class="prev" value="${u.prev}" step="0.01" min="0"></td>
-      <td><input type="number" class="cur"  value="${u.cur}"  step="0.01" min="0"></td>
-      <td class="cons num">0</td>
-      <td class="perc num">0</td>
-      <td class="own num">0</td>
-      <td class="loss num">0</td>
-      <td class="inet num">0</td>
-      <td class="total num">0</td>
-    `;
+  if (!Array.isArray(state.users)) state.users = [];
+  state.users.forEach(function(u, i){
+    var tr = document.createElement('tr');
+    if (u.disabled) tr.classList.add('row-off');
+    tr.innerHTML =
+      '<td><button class="gray small shoot-hide" onclick="openEditModal(' + i + ')">✎</button></td>' +
+      '<td>' + (i+1) + '</td>' +
+      '<td class="name">' + escapeHtml(u.name) + '</td>' +
+      '<td><input type="number" class="prev" value="' + u.prev + '" step="0.01"></td>' +
+      '<td><input type="number" class="cur"  value="' + u.cur  + '" step="0.01"></td>' +
+      '<td class="cons num">0</td>' +
+      '<td class="perc num">0</td>' +
+      '<td class="own num">0</td>' +
+      '<td class="loss num">0</td>' +
+      '<td class="inet num inet-cell">0</td>' +
+      '<td class="total num">0</td>';
     tbody.appendChild(tr);
   });
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, m => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[m]));
+  return String(s).replace(/[&<>"']/g, function(m){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+  });
 }
 
-/* ============ ПЕРЕНОС ТЕКУЩИХ → ПРЕДЫДУЩИЕ ============ */
 function shiftReadings() {
-  if (!confirm(
-    "Перенести текущие показания в предыдущие?\n\n" +
-    "• Главный счётчик: «Тек.» → «Пред.»\n" +
-    "• У всех гаражей: «Тек.» → «Пред.»\n" +
-    "• Поля «Тек.» обнулятся для новых цифр.\n\n" +
-    "Продолжить?"
-  )) return;
-
-  const mp = parseFloat(document.getElementById('mainCur').value) || 0;
-  document.getElementById('mainPrev').value = mp;
-  document.getElementById('mainCur').value = 0;
-
-  document.querySelectorAll('#tbody tr').forEach(tr => {
-    const cur = parseFloat(tr.querySelector('.cur').value) || 0;
-    tr.querySelector('.prev').value = cur;
-    tr.querySelector('.cur').value = 0;
+  var rows = document.querySelectorAll('#tbody tr');
+  var errors = [];
+  Array.prototype.forEach.call(rows, function(tr, i){
+    var prev = parseFloat(tr.querySelector('.prev').value) || 0;
+    var cur  = parseFloat(tr.querySelector('.cur').value) || 0;
+    if (cur < prev) errors.push({ idx: i, name: state.users[i] ? state.users[i].name : "—", prev: prev, cur: cur });
   });
 
-  calculate();
-  saveAll();
-  alert("Готово! Текущие показания перенесены в предыдущие. Введите новые цифры в столбец «Тек.».");
+  if (errors.length > 0) {
+    var list = document.getElementById('errorsList');
+    list.innerHTML = errors.map(function(e){
+      return '<div class="err-item"><div><div class="who">' + escapeHtml(e.name) + '</div>' +
+        '<div style="font-size:11.5px;color:#999;">строка №' + (e.idx+1) + '</div></div>' +
+        '<div class="nums">Пред.: <b>' + e.prev + '</b> → Тек.: <b>' + e.cur + '</b></div>' +
+        '<button class="goto" onclick="gotoError(' + e.idx + ')">Перейти</button></div>';
+    }).join('');
+    document.getElementById('errorsModalBg').classList.add('show');
+    return;
+  }
+
+  if (!confirm("Перенести текущие показания в предыдущие?\n\n• Главный счётчик: Тек → Пред\n• У всех гаражей: Тек → Пред\n• Поля «Тек.» обнулятся\n\nПродолжить?")) return;
+
+  pushHistory();
+  try {
+    var mp = parseFloat(document.getElementById('mainCur').value) || 0;
+    document.getElementById('mainPrev').value = mp;
+    document.getElementById('mainCur').value = 0;
+    Array.prototype.forEach.call(document.querySelectorAll('#tbody tr'), function(tr){
+      var cur = parseFloat(tr.querySelector('.cur').value) || 0;
+      tr.querySelector('.prev').value = cur;
+      tr.querySelector('.cur').value = 0;
+    });
+    calculate();
+    saveAll();
+    alert("Готово!");
+  } catch(e) { alert("Ошибка при переносе: " + e.message); }
 }
 
-/* ============ ДОБАВЛЕНИЕ ============ */
+function gotoError(idx) {
+  closeErrorsModal();
+  var tr = document.querySelectorAll('#tbody tr')[idx];
+  if (!tr) return;
+  tr.scrollIntoView({behavior:'smooth', block:'center'});
+  var input = tr.querySelector('.cur');
+  if (input) setTimeout(function(){ input.focus(); input.select(); }, 400);
+}
+function closeErrorsModal() { document.getElementById('errorsModalBg').classList.remove('show'); }
+
 function openAddModal() {
-  const bg = document.getElementById('addModalBg');
-  const posInput = document.getElementById('addPos');
-  const nameInput = document.getElementById('addName');
-  const hint = document.getElementById('addPosHint');
-
-  posInput.value = state.users.length + 1;
-  hint.textContent = `По умолчанию — последний (№${state.users.length + 1})`;
-  posInput.max = state.users.length + 1;
-  nameInput.value = '';
-  bg.classList.add('show');
-  setTimeout(() => nameInput.focus(), 50);
+  try {
+    document.getElementById('addName').value = '';
+    var posInput = document.getElementById('addPos');
+    var len = Array.isArray(state.users) ? state.users.length : 0;
+    posInput.value = len + 1;
+    posInput.max = len + 1;
+    document.getElementById('addPosHint').textContent = "По умолчанию — последний (№" + (len + 1) + ")";
+    document.getElementById('addModalBg').classList.add('show');
+    setTimeout(function(){ document.getElementById('addName').focus(); }, 50);
+  } catch(e) { alert("Ошибка при открытии: " + e.message); }
 }
-
-function closeAddModal() {
-  document.getElementById('addModalBg').classList.remove('show');
-}
+function closeAddModal() { document.getElementById('addModalBg').classList.remove('show'); }
 
 function confirmAddUser() {
-  const name = document.getElementById('addName').value.trim() || "—";
-  let pos = parseInt(document.getElementById('addPos').value);
-  const total = state.users.length;
-
-  if (isNaN(pos)) pos = total + 1;
-  if (pos < 1) pos = 1;
-  if (pos > total + 1) pos = total + 1;
-
-  state.users.splice(pos - 1, 0, { name: name, prev: 0, cur: 0 });
-
-  closeAddModal();
-  renderRows();
-  calculate();
-  saveAll();
+  try {
+    var nameEl = document.getElementById('addName');
+    var posEl  = document.getElementById('addPos');
+    if (!nameEl || !posEl) return;
+    var name = nameEl.value.trim() || "—";
+    var pos = parseInt(posEl.value);
+    if (!Array.isArray(state.users)) state.users = [];
+    var total = state.users.length;
+    if (isNaN(pos)) pos = total + 1;
+    if (pos < 1) pos = 1;
+    if (pos > total + 1) pos = total + 1;
+    state.users.splice(pos - 1, 0, { name: name, prev: 0, cur: 0, disabled: false });
+    closeAddModal();
+    renderRows();
+    calculate();
+    saveAll();
+    scheduleAutosave();
+  } catch(e) { alert("Ошибка при добавлении: " + e.message); }
 }
 
-/* ============ РЕДАКТИРОВАНИЕ / УДАЛЕНИЕ ============ */
 function openEditModal(idx) {
-  editIndex = idx;
-  const u = state.users[idx];
-  const bg = document.getElementById('editModalBg');
-
-  document.getElementById('editName').value = u.name;
-  document.getElementById('editPos').value = idx + 1;
-  document.getElementById('editPos').max = state.users.length;
-  document.getElementById('editPosHint').textContent =
-    `Сейчас на позиции №${idx + 1} из ${state.users.length}. Смена позиции сдвинет остальных.`;
-
-  bg.classList.add('show');
-  setTimeout(() => document.getElementById('editName').focus(), 50);
+  try {
+    editIndex = idx;
+    var u = state.users[idx];
+    if (!u) return;
+    document.getElementById('editName').value = u.name;
+    document.getElementById('editPos').value = idx + 1;
+    document.getElementById('editPos').max = state.users.length;
+    document.getElementById('editPosHint').textContent = "Сейчас на позиции №" + (idx+1) + " из " + state.users.length;
+    document.getElementById('editDisabled').checked = !!u.disabled;
+    document.getElementById('editModalBg').classList.add('show');
+    setTimeout(function(){ document.getElementById('editName').focus(); }, 50);
+  } catch(e) { alert("Ошибка: " + e.message); }
 }
-
-function closeEditModal() {
-  document.getElementById('editModalBg').classList.remove('show');
-  editIndex = -1;
-}
+function closeEditModal() { document.getElementById('editModalBg').classList.remove('show'); editIndex = -1; }
 
 function confirmEditUser() {
   if (editIndex < 0) return;
-  const newName = document.getElementById('editName').value.trim() || "—";
-  let newPos = parseInt(document.getElementById('editPos').value);
-  const total = state.users.length;
-
-  if (isNaN(newPos)) newPos = editIndex + 1;
-  if (newPos < 1) newPos = 1;
-  if (newPos > total) newPos = total;
-
-  const user = state.users.splice(editIndex, 1)[0];
-  user.name = newName;
-  state.users.splice(newPos - 1, 0, user);
-
-  closeEditModal();
-  renderRows();
-  calculate();
-  saveAll();
+  try {
+    var newName = document.getElementById('editName').value.trim() || "—";
+    var isDisabled = document.getElementById('editDisabled').checked;
+    var newPos = parseInt(document.getElementById('editPos').value);
+    var total = state.users.length;
+    if (isNaN(newPos)) newPos = editIndex + 1;
+    if (newPos < 1) newPos = 1;
+    if (newPos > total) newPos = total;
+    var user = state.users.splice(editIndex, 1)[0];
+    user.name = newName;
+    user.disabled = isDisabled;
+    state.users.splice(newPos - 1, 0, user);
+    closeEditModal();
+    renderRows();
+    calculate();
+    saveAll();
+    scheduleAutosave();
+  } catch(e) { alert("Ошибка: " + e.message); }
 }
 
 function deleteFromEdit() {
   if (editIndex < 0) return;
-  const u = state.users[editIndex];
-  if (!confirm(`Удалить пользователя «${u.name}»?`)) return;
-  state.users.splice(editIndex, 1);
-  closeEditModal();
-  renderRows();
-  calculate();
-  saveAll();
+  try {
+    var u = state.users[editIndex];
+    if (!confirm("Удалить пользователя «" + u.name + "»?")) return;
+    state.users.splice(editIndex, 1);
+    closeEditModal();
+    renderRows();
+    calculate();
+    saveAll();
+    scheduleAutosave();
+  } catch(e) { alert("Ошибка: " + e.message); }
 }
 
-/* ============ МОДАЛЬНОЕ ОКНО "СПАСИБО РАЗРАБОТЧИКУ" ============ */
 function openThanksModal() {
   document.getElementById('thanksModalBg').classList.add('show');
-  const btn = document.getElementById('copyBtn');
+  var btn = document.getElementById('copyBtn');
   btn.textContent = "📋 Скопировать номер";
   btn.style.background = "#10b981";
 }
-
-function closeThanksModal() {
-  document.getElementById('thanksModalBg').classList.remove('show');
-}
+function closeThanksModal() { document.getElementById('thanksModalBg').classList.remove('show'); }
 
 function copyPhone() {
-  const phone = "+79061983929";
-  const btn = document.getElementById('copyBtn');
-
-  const done = () => {
-    btn.textContent = "✅ Номер скопирован!";
+  var phone = "+79061983929";
+  var btn = document.getElementById('copyBtn');
+  function done() {
+    btn.textContent = "✅ Скопировано!";
     btn.style.background = "#059669";
-    setTimeout(() => {
-      btn.textContent = "📋 Скопировать номер";
-      btn.style.background = "#10b981";
-    }, 2000);
-  };
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(phone).then(done).catch(() => fallbackCopy(phone, done));
-  } else {
-    fallbackCopy(phone, done);
+    setTimeout(function(){ btn.textContent = "📋 Скопировать номер"; btn.style.background = "#10b981"; }, 2000);
   }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(phone).then(done).catch(function(){ fallbackCopy(phone, done); });
+  } else { fallbackCopy(phone, done); }
 }
-
 function fallbackCopy(text, cb) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); cb(); }
-  catch (e) { alert("Не удалось скопировать. Номер: " + text); }
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch(e){}
   document.body.removeChild(ta);
 }
 
-/* ============ МОДАЛЬНОЕ ОКНО "ПОМОЩЬ" ============ */
-function openHelpModal() {
-  document.getElementById('helpModalBg').classList.add('show');
-}
-function closeHelpModal() {
-  document.getElementById('helpModalBg').classList.remove('show');
-}
+function openHelpModal() { document.getElementById('helpModalBg').classList.add('show'); }
+function closeHelpModal() { document.getElementById('helpModalBg').classList.remove('show'); }
 
-/* ============ МОДАЛЬНОЕ ОКНО "ОТПРАВИТЬ СКРИНШОТ" ============ */
 function openShareModal() {
   document.getElementById('sharePreview').src = lastDataURL;
   document.getElementById('shareModalBg').classList.add('show');
 }
-function closeShareModal() {
-  document.getElementById('shareModalBg').classList.remove('show');
-}
-
+function closeShareModal() { document.getElementById('shareModalBg').classList.remove('show'); }
 function downloadOnly() {
   if (!lastFile) return;
-  const link = document.createElement('a');
+  var link = document.createElement('a');
   link.href = URL.createObjectURL(lastBlob);
   link.download = lastFile.name;
   link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 3000);
+  setTimeout(function(){ URL.revokeObjectURL(link.href); }, 3000);
 }
-
-async function shareTo(messenger) {
+function shareTo(messenger) {
   if (!lastFile) return;
-
-  // 1) Пытаемся использовать нативное "Поделиться" (работает на телефонах)
   if (navigator.canShare && navigator.canShare({ files: [lastFile] })) {
-    try {
-      await navigator.share({
-        files: [lastFile],
-        title: "Расчёт за свет",
-        text: "Расчёт по электроэнергии и интернету"
-      });
-      closeShareModal();
-      return;
-    } catch (err) {
-      // Пользователь отменил или браузер не дал — идём дальше
-    }
+    navigator.share({ files: [lastFile], title: "Расчёт за свет", text: "Расчёт по электроэнергии и интернету" }).then(closeShareModal).catch(function(){});
+    return;
   }
-
-  // 2) Фолбэк: скачиваем файл и открываем веб-версию мессенджера
   downloadOnly();
-
-  const text = encodeURIComponent("Расчёт по электроэнергии — прикрепляю скриншот.");
-  let url = "";
-
-  if (messenger === 'telegram') {
-    url = "https://web.telegram.org/k/";
-  } else if (messenger === 'whatsapp') {
-    url = "https://web.whatsapp.com/";
-  } else if (messenger === 'max') {
-    url = "https://max.ru/";
-  }
-
-  setTimeout(() => {
+  var url = "";
+  if (messenger === 'telegram') url = "https://web.telegram.org/k/";
+  else if (messenger === 'whatsapp') url = "https://web.whatsapp.com/";
+  else if (messenger === 'max') url = "https://max.ru/";
+  setTimeout(function(){
     if (url) window.open(url, '_blank');
-    alert(
-      "Скриншот сохранён в папку «Загрузки».\n\n" +
-      "В открывшемся мессенджере прикрепите файл к сообщению:\n" +
-      "📎 → Выбрать файл → " + (lastFile ? lastFile.name : "PNG")
-    );
+    alert("Скриншот сохранён в «Загрузки».\nПрикрепите файл в мессенджере: 📎 → " + lastFile.name);
   }, 400);
 }
 
-/* ============ РАСЧЕТ ============ */
-function fmt(n, d = 2) {
-  return Number(n).toLocaleString('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d });
-}
+function fmt(n, d) { if (d === undefined) d = 2; return Number(n).toLocaleString('ru-RU', {minimumFractionDigits: d, maximumFractionDigits: d}); }
 
 function calculate() {
-  const tariff   = parseFloat(document.getElementById('tariff').value) || 0;
-  const mainCur  = parseFloat(document.getElementById('mainCur').value) || 0;
-  const mainPrev = parseFloat(document.getElementById('mainPrev').value) || 0;
-  const lossMode = document.getElementById('lossMode').value;
-  const inetM    = parseFloat(document.getElementById('inet').value) || 0;
-  let months     = parseInt(document.getElementById('months').value) || 1;
-  if (months < 1) months = 1;
+  try {
+    var tariff   = parseFloat(document.getElementById('tariff').value) || 0;
+    var mainCur  = parseFloat(document.getElementById('mainCur').value) || 0;
+    var mainPrev = parseFloat(document.getElementById('mainPrev').value) || 0;
+    var lossMode = document.getElementById('lossMode').value;
+    var inetM    = parseFloat(document.getElementById('inet').value) || 0;
+    var months   = parseInt(document.getElementById('months').value) || 1;
+    if (months < 1) months = 1;
 
-  const rows = [...document.querySelectorAll('#tbody tr')];
-  const N = rows.length;
-  let consArr = [];
-  let sumCons = 0;
+    var rows = document.querySelectorAll('#tbody tr');
+    var N = rows.length;
 
-  rows.forEach((tr, i) => {
-    const prev = parseFloat(tr.querySelector('.prev').value) || 0;
-    const cur  = parseFloat(tr.querySelector('.cur').value) || 0;
-    let cons = cur - prev;
-    if (cons < 0) cons = 0;
-    consArr[i] = cons;
-    sumCons += cons;
-    tr.querySelector('.cons').textContent = fmt(cons, 2);
-  });
+    var Nactive = 0;
+    if (Array.isArray(state.users)) state.users.forEach(function(u){ if (!u.disabled) Nactive++; });
 
-  let mainCons = mainCur - mainPrev;
-  if (mainCons < 0) mainCons = 0;
+    var consArr = [];
+    var sumCons = 0;
 
-  const lossKwh = mainCons - sumCons;
-  const lossRub = lossKwh * tariff;
-  const mainSum = mainCons * tariff;
+    Array.prototype.forEach.call(rows, function(tr, i){
+      var prev = parseFloat(tr.querySelector('.prev').value) || 0;
+      var cur  = parseFloat(tr.querySelector('.cur').value) || 0;
+      var cons = cur - prev;
+      var isError = cons < 0;
+      if (cons < 0) cons = 0;
+      consArr[i] = cons;
+      sumCons += cons;
+      tr.querySelector('.cons').textContent = fmt(cons);
+      if (isError) tr.classList.add('row-error');
+      else tr.classList.remove('row-error');
+    });
 
-  const inetTotal = inetM * months;
-  const inetPer = N > 0 ? inetTotal / N : 0;
+    var mainCons = mainCur - mainPrev;
+    if (mainCons < 0) mainCons = 0;
+    var lossKwh = mainCons - sumCons;
+    var lossRub = lossKwh * tariff;
+    var mainSum = mainCons * tariff;
+    var inetTotal = inetM * months;
+    var inetPer = Nactive > 0 ? inetTotal / Nactive : 0;
+    var sumOwnCalc = 0, sumLossCalc = 0, sumTotalCalc = 0;
+    var equalShare = (lossMode === 'equal' && N > 0) ? (lossRub / N) : 0;
 
-  let sumOwnCalc = 0, sumLossCalc = 0, sumTotalCalc = 0;
-  const equalShare = lossMode === 'equal' && N > 0 ? (lossRub / N) : 0;
+    Array.prototype.forEach.call(rows, function(tr, i){
+      var cons = consArr[i];
+      var isOffInet = (Array.isArray(state.users) && state.users[i]) ? state.users[i].disabled : false;
+      var perc = sumCons > 0 ? (cons / sumCons * 100) : 0;
+      var own  = cons * tariff;
+      var loss = (lossMode === 'equal') ? equalShare : (sumCons > 0 ? (perc / 100) * lossRub : 0);
+      var inetShare = isOffInet ? 0 : inetPer;
+      var total = own + loss + inetShare;
 
-  rows.forEach((tr, i) => {
-    const cons = consArr[i];
-    const perc = sumCons > 0 ? (cons / sumCons * 100) : 0;
-    const own  = cons * tariff;
-    const loss = lossMode === 'equal'
-      ? equalShare
-      : (sumCons > 0 ? (perc / 100) * lossRub : 0);
-    const total = own + loss + inetPer;
+      tr.querySelector('.perc').textContent  = fmt(perc);
+      tr.querySelector('.own').textContent   = fmt(own);
+      tr.querySelector('.loss').textContent  = fmt(loss);
+      var inetCell = tr.querySelector('.inet');
+      if (isOffInet) {
+        inetCell.textContent = "—";
+        inetCell.style.color = "#999";
+        inetCell.style.fontStyle = "italic";
+      } else {
+        inetCell.textContent = fmt(inetShare);
+        inetCell.style.color = "";
+        inetCell.style.fontStyle = "";
+      }
+      tr.querySelector('.total').textContent = fmt(total);
+      sumOwnCalc   += own;
+      sumLossCalc  += loss;
+      sumTotalCalc += total;
+    });
 
-    tr.querySelector('.perc').textContent  = fmt(perc, 2);
-    tr.querySelector('.own').textContent   = fmt(own, 2);
-    tr.querySelector('.loss').textContent  = fmt(loss, 2);
-    tr.querySelector('.inet').textContent  = fmt(inetPer, 2);
-    tr.querySelector('.total').textContent = fmt(total, 2);
+    document.getElementById('sCons').textContent  = fmt(sumCons);
+    document.getElementById('sPerc').textContent  = sumCons > 0 ? "100,00" : "0,00";
+    document.getElementById('sOwn').textContent   = fmt(sumOwnCalc);
+    document.getElementById('sLoss').textContent  = fmt(sumLossCalc);
+    document.getElementById('sInet').textContent  = fmt(inetTotal);
+    document.getElementById('sTotal').textContent = fmt(sumTotalCalc);
 
-    sumOwnCalc   += own;
-    sumLossCalc  += loss;
-    sumTotalCalc += total;
-  });
+    document.getElementById('mCons').textContent = fmt(mainCons);
+    document.getElementById('mSum').textContent  = fmt(mainSum);
+    document.getElementById('lKwh').textContent  = fmt(lossKwh, 3);
+    document.getElementById('lRub').textContent  = fmt(lossRub);
+    document.getElementById('iSum').textContent  = fmt(inetTotal);
+    document.getElementById('iPer').textContent  = fmt(inetPer);
 
-  document.getElementById('sCons').textContent  = fmt(sumCons, 2);
-  document.getElementById('sPerc').textContent  = fmt(sumCons > 0 ? 100 : 0, 2);
-  document.getElementById('sOwn').textContent   = fmt(sumOwnCalc, 2);
-  document.getElementById('sLoss').textContent  = fmt(sumLossCalc, 2);
-  document.getElementById('sInet').textContent  = fmt(inetTotal, 2);
-  document.getElementById('sTotal').textContent = fmt(sumTotalCalc, 2);
-
-  document.getElementById('mCons').textContent = fmt(mainCons, 2);
-  document.getElementById('mSum').textContent  = fmt(mainSum, 2);
-  document.getElementById('lKwh').textContent  = fmt(lossKwh, 3);
-  document.getElementById('lRub').textContent  = fmt(lossRub, 2);
-  document.getElementById('iSum').textContent  = fmt(inetTotal, 2);
-  document.getElementById('iPer').textContent  = fmt(inetPer, 2);
-
-  const st = document.getElementById('status');
-  if (Math.abs(lossKwh) < 0.0001) {
-    st.textContent = 'потерь нет';
-    st.className = 'badge ok';
-  } else if (lossKwh > 0) {
-    st.textContent = `потери ${fmt(lossKwh, 2)} кВт·ч`;
-    st.className = 'badge';
-  } else {
-    st.textContent = `гаражи больше главного на ${fmt(Math.abs(lossKwh), 2)} кВт·ч`;
-    st.className = 'badge';
-  }
+    var st = document.getElementById('status');
+    if (Math.abs(lossKwh) < 0.0001) { st.textContent = 'потерь нет'; st.className = 'badge ok'; }
+    else if (lossKwh > 0) { st.textContent = 'потери ' + fmt(lossKwh) + ' кВт·ч'; st.className = 'badge'; }
+    else { st.textContent = 'гаражи больше на ' + fmt(Math.abs(lossKwh)) + ' кВт·ч'; st.className = 'badge'; }
+  } catch(e) { console.error("calculate:", e); }
 }
 
-/* ============ СКРИНШОТ ============ */
 function makeScreenshot() {
   if (typeof html2canvas === 'undefined') {
-    alert("Библиотека для скриншотов не загрузилась.\nПроверьте интернет-соединение и обновите страницу.");
+    alert("Библиотека html2canvas не загрузилась. Проверьте интернет.");
     return;
   }
-
   document.getElementById('shootOverlay').classList.add('show');
   document.body.classList.add('shooting');
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
 
-  if (document.activeElement && document.activeElement.blur) {
-    document.activeElement.blur();
-  }
-
-  const target = document.querySelector('.wrap');
-
-  setTimeout(() => {
+  var target = document.querySelector('.wrap');
+  setTimeout(function(){
     html2canvas(target, {
       backgroundColor: "#f4f6f9",
       scale: 2,
       useCORS: true,
-      logging: false,
-      windowWidth: document.documentElement.scrollWidth,
-      windowHeight: document.documentElement.scrollHeight
-    }).then(canvas => {
-      const now = new Date();
-      const pad = n => String(n).padStart(2, '0');
-      const fname = "raschet_" +
-        now.getFullYear() + "-" +
-        pad(now.getMonth() + 1) + "-" +
-        pad(now.getDate()) + "_" +
-        pad(now.getHours()) + "-" +
-        pad(now.getMinutes()) + "-" +
-        pad(now.getSeconds()) + ".png";
-
-      // Сохраняем в переменных для дальнейшей отправки
+      logging: false
+    }).then(function(canvas){
+      var now = new Date();
+      function p(x){ return String(x).padStart(2,'0'); }
+      var fname = "raschet_" + now.getFullYear() + "-" + p(now.getMonth()+1) + "-" + p(now.getDate()) + "_" + p(now.getHours()) + "-" + p(now.getMinutes()) + "-" + p(now.getSeconds()) + ".png";
       lastDataURL = canvas.toDataURL("image/png");
-
-      // Получаем Blob
-      canvas.toBlob(blob => {
+      canvas.toBlob(function(blob){
         lastBlob = blob;
-        lastFile = new File([blob], fname, { type: "image/png" });
-
-        // Возвращаем страницу как было
+        lastFile = new File([blob], fname, {type: "image/png"});
         document.body.classList.remove('shooting');
         document.getElementById('shootOverlay').classList.remove('show');
-
-        // Открываем окно с выбором мессенджера
         openShareModal();
       }, "image/png");
-    }).catch(err => {
-      console.error(err);
+    }).catch(function(err){
       document.body.classList.remove('shooting');
       document.getElementById('shootOverlay').classList.remove('show');
-      alert("Не удалось создать скриншот: " + err.message);
+      alert("Не удалось: " + err.message);
     });
-  }, 120);
+  }, 200);
 }
 
-/* ============ СБРОС / ЭКСПОРТ / ИМПОРТ ============ */
 function resetReadings() {
-  if (!confirm("Сбросить все показания счётчиков (у всех — по нулям)?")) return;
+  if (!confirm("Сбросить все показания?")) return;
+  pushHistory();
   document.getElementById('mainPrev').value = 0;
   document.getElementById('mainCur').value = 0;
-  document.querySelectorAll('#tbody tr').forEach(tr => {
+  Array.prototype.forEach.call(document.querySelectorAll('#tbody tr'), function(tr){
     tr.querySelector('.prev').value = 0;
     tr.querySelector('.cur').value = 0;
   });
   calculate();
+  scheduleAutosave();
 }
 
 function resetAll() {
-  if (!confirm("Удалить ВСЁ: показания, настройки, пользователей — и вернуть стандартный список?")) return;
-  localStorage.removeItem(LS_KEY);
-  location.reload();
+  if (!confirm("Удалить ВСЁ и вернуть стандартный список?")) return;
+  pushHistory();
+  state.tariff = 5.46; state.mainPrev = 0; state.mainCur = 0;
+  state.lossMode = "percent"; state.inet = 220; state.months = 1;
+  state.users = DEFAULT_OWNERS.map(function(n){ return { name: n, prev: 0, cur: 0, disabled: false }; });
+  renderAll();
+  saveAll(false);
+  showToast("❌ Всё сброшено (можно откатить Ctrl+Z)");
 }
 
 function exportJSON() {
   saveAll();
-  const dataStr = JSON.stringify(state, null, 2);
-  const blob = new Blob([dataStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = "svet_" + new Date().toISOString().slice(0, 10) + ".json";
-  a.click();
-  URL.revokeObjectURL(url);
+  try {
+    var dataStr = JSON.stringify(state, null, 2);
+    var blob = new Blob([dataStr], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = "svet_" + new Date().toISOString().slice(0,10) + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert("Ошибка экспорта: " + e.message); }
 }
 
 function importJSON(ev) {
-  const file = ev.target.files[0];
+  var file = ev.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  var reader = new FileReader();
+  reader.onload = function(e){
     try {
-      const d = JSON.parse(e.target.result);
-      if (!d.users || !Array.isArray(d.users)) throw new Error("Нет списка users");
-      if (!confirm("Заменить текущие данные данными из файла?")) return;
-      state = {
-        tariff:   d.tariff   ?? 5.46,
-        mainPrev: d.mainPrev ?? 0,
-        mainCur:  d.mainCur  ?? 0,
-        lossMode: d.lossMode ?? "percent",
-        inet:     d.inet     ?? 220,
-        months:   d.months   ?? 1,
-        users:    d.users
-      };
+      var d = JSON.parse(e.target.result);
+      if (!d.users || !d.users.length) throw new Error("Нет списка users");
+      if (!confirm("Заменить данные из файла?")) return;
+      pushHistory();
+      state.tariff   = parseFloat(d.tariff)   || 5.46;
+      state.mainPrev = parseFloat(d.mainPrev) || 0;
+      state.mainCur  = parseFloat(d.mainCur)  || 0;
+      state.lossMode = d.lossMode || "percent";
+      state.inet     = parseFloat(d.inet)     || 220;
+      state.months   = parseInt(d.months)     || 1;
+      state.autosave = !!d.autosave;
+      state.users = d.users.map(function(u){
+        return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
+      });
       renderAll();
       saveAll();
-    } catch (err) {
-      alert("Ошибка чтения файла: " + err.message);
-    }
+    } catch(err) { alert("Ошибка чтения: " + err.message); }
   };
   reader.readAsText(file);
   ev.target.value = '';
 }
 
-/* ============ СЛУШАТЕЛИ ============ */
-document.addEventListener('input', (e) => {
-  if (e.target.matches('input, select')) calculate();
+document.addEventListener('input', function(e){
+  if (e.target.matches('input, select')) { calculate(); scheduleAutosave(); }
 });
-
-/* Закрытие модалок кликом по фону */
-document.getElementById('addModalBg').addEventListener('click', (e) => {
-  if (e.target.id === 'addModalBg') closeAddModal();
+document.addEventListener('focusout', function(e){
+  if (e.target.matches('input.prev, input.cur')) pushHistory();
 });
-document.getElementById('editModalBg').addEventListener('click', (e) => {
-  if (e.target.id === 'editModalBg') closeEditModal();
-});
-document.getElementById('thanksModalBg').addEventListener('click', (e) => {
-  if (e.target.id === 'thanksModalBg') closeThanksModal();
-});
-document.getElementById('shareModalBg').addEventListener('click', (e) => {
-  if (e.target.id === 'shareModalBg') closeShareModal();
-});
-document.getElementById('helpModalBg').addEventListener('click', (e) => {
-  if (e.target.id === 'helpModalBg') closeHelpModal();
-});
-
-document.addEventListener('keydown', (e) => {
-  const addOpen    = document.getElementById('addModalBg').classList.contains('show');
-  const editOpen   = document.getElementById('editModalBg').classList.contains('show');
-  const thanksOpen = document.getElementById('thanksModalBg').classList.contains('show');
-  const shareOpen  = document.getElementById('shareModalBg').classList.contains('show');
-  const helpOpen   = document.getElementById('helpModalBg').classList.contains('show');
-
-  if (e.key === 'Escape') {
-    closeAddModal();
-    closeEditModal();
-    closeThanksModal();
-    closeShareModal();
-    closeHelpModal();
+document.addEventListener('keydown', function(e){
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    var modalOpen = ['addModalBg','editModalBg','thanksModalBg','shareModalBg','helpModalBg','errorsModalBg']
+      .some(function(id){ var el = document.getElementById(id); return el && el.classList.contains('show'); });
+    if (!modalOpen) { e.preventDefault(); undoAction(); }
+    return;
   }
+  if (e.key === 'Escape') {
+    closeAddModal(); closeEditModal(); closeThanksModal(); closeShareModal(); closeHelpModal(); closeErrorsModal();
+  }
+  var addOpen = document.getElementById('addModalBg').classList.contains('show');
+  var editOpen = document.getElementById('editModalBg').classList.contains('show');
   if (e.key === 'Enter') {
     if (addOpen) confirmAddUser();
     else if (editOpen) confirmEditUser();
   }
 });
+['addModalBg','editModalBg','thanksModalBg','shareModalBg','helpModalBg','errorsModalBg'].forEach(function(id){
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', function(e){
+    if (e.target.id === id) {
+      closeAddModal(); closeEditModal(); closeThanksModal(); closeShareModal(); closeHelpModal(); closeErrorsModal();
+    }
+  });
+});
 
-/* ============ СТАРТ ============ */
 loadFromStorage();
 renderAll();
 </script>
