@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
 <title>Расчет света и интернета — кооператив</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -290,8 +290,13 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
     width: 100%; padding: 10px; font-size: 16px;
     border: 1px solid #ccd; border-radius: 6px; text-align: right;
     -webkit-appearance: none;
+    /* Никаких transition/transform — чтобы Chrome не пересчитывал layout */
+    transition: none;
   }
-  .m-card .m-readings input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+  .m-card .m-readings input:focus {
+    outline: 2px solid #3b82f6;
+    border-color: transparent;
+  }
 
   .m-card .m-sums {
     display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px;
@@ -620,9 +625,8 @@ body.shooting .table-tools { display: none !important; }
     </div>
 
     <div class="help-block"><b>2. Период расчёта</b><br>
-      Выберите <b>с какого месяца по какой</b> ведёте расчёт — из выпадающих меню.
-      Период автоматически умножает абонентскую плату за интернет на количество месяцев
-      и <b>попадает в скриншот</b>.
+      Выберите <b>с какого месяца по какой</b> ведёте расчёт. Период умножает абонентскую плату
+      за интернет на количество месяцев и <b>попадает в скриншот</b>.
     </div>
 
     <div class="help-block"><b>3. Показания гаражей</b><br>
@@ -691,9 +695,6 @@ var lastBlob = null, lastFile = null, lastDataURL = null;
 var autosaveTimer = null;
 var history = [];
 var historyLock = false;
-
-/* Таймер для отложенного пересчёта в мобильных карточках */
-var mobileInputTimer = null;
 
 function updateDateTime() {
   var n = new Date();
@@ -1031,9 +1032,13 @@ function renderMobileCards() {
     box.appendChild(card);
   });
 
-  /* Обработчики полей ввода — с ЗАДЕРЖКОЙ, чтобы не терять фокус и не закрывать клавиатуру */
+  /* Обработчики полей ввода в карточках:
+     - при input НИЧЕГО не делаем (только синхронизация значения скрытого поля в таблице)
+     - пересчёт делаем только при blur (когда пользователь ушёл с поля) */
   box.querySelectorAll('input').forEach(function(inp){
     inp.addEventListener('input', function(){
+      /* Синхронизируем только скрытое (невидимое) поле в основной таблице.
+         Никаких calculate() / scheduleAutosave() / pushHistory() — чтобы не тронуть DOM. */
       var idx = parseInt(this.dataset.idx);
       var field = this.dataset.field;
       var trs = document.querySelectorAll('#tbody tr');
@@ -1041,16 +1046,12 @@ function renderMobileCards() {
         var target = trs[idx].querySelector('.' + field);
         if (target) target.value = this.value;
       }
-      // Отложенный пересчёт — 350 мс после последнего нажатия
-      clearTimeout(mobileInputTimer);
-      mobileInputTimer = setTimeout(function(){
-        calculate();
-        scheduleAutosave();
-      }, 350);
     });
-    // Не вызываем pushHistory в focusout, чтобы не трогать DOM.
-    // История сохраняется только когда пользователь закончил редактирование.
-    inp.addEventListener('change', function(){
+
+    /* Пересчёт и история — только при уходе с поля */
+    inp.addEventListener('blur', function(){
+      calculate();
+      scheduleAutosave();
       pushHistory();
     });
   });
@@ -1058,11 +1059,10 @@ function renderMobileCards() {
   updateMobileCardsTexts();
 }
 
-/* Обновляет ТОЛЬКО текстовые значения — и ТОЛЬКО если пользователь не печатает в карточке */
+/* Обновляет ТОЛЬКО текстовые значения — и ТОЛЬКО если пользователь не в поле */
 function updateMobileCardsTexts() {
   if (!isMobile()) return;
 
-  // Если фокус в поле карточки — НИЧЕГО не трогаем, чтобы не закрыть клавиатуру
   var active = document.activeElement;
   if (active && active.closest && active.closest('#mobileCards')) {
     return;
@@ -1520,13 +1520,12 @@ function importJSON(ev) {
 }
 
 document.addEventListener('input', function(e){
-  /* Поля в мобильных карточках обрабатываются отдельно */
+  /* Поля в мобильных карточках обрабатываются отдельно — не трогаем их */
   if (e.target.closest && e.target.closest('#mobileCards')) return;
   if (e.target.matches('input, select')) { calculate(); scheduleAutosave(); }
 });
 
 document.addEventListener('focusout', function(e){
-  /* Поля в мобильных карточках обрабатываются отдельно */
   if (e.target.closest && e.target.closest('#mobileCards')) return;
   if (e.target.matches('input.prev, input.cur')) pushHistory();
 });
