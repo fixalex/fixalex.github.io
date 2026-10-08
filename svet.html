@@ -8,11 +8,7 @@
 <style>
 * { box-sizing: border-box; }
 body { font-family: Arial, Helvetica, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #222; }
-h1 { font-size: 22px; margin: 0 0 6px; }
-.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 14px; }
-.topbar .spacer { flex: 1; }
-.datetime { background: #fff; border-radius: 8px; padding: 8px 14px; font-size: 13px; color: #333; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 4px solid #3b82f6; }
-.datetime b { color: #1e40af; }
+h1 { font-size: 22px; margin: 0 0 14px; }
 .wrap { max-width: 1350px; margin: 0 auto; }
 .panel { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 16px; }
 .settings { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
@@ -221,8 +217,6 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
   body { padding: 8px; }
   h1 { font-size: 17px; }
   .wrap { max-width: 100%; }
-  .topbar { flex-direction: column; align-items: stretch; gap: 6px; margin-bottom: 8px; }
-  .datetime { text-align: center; font-size: 12px; padding: 6px 10px; }
 
   .panel { padding: 12px 12px; border-radius: 8px; margin-bottom: 10px; }
   .settings { flex-direction: column; gap: 10px; align-items: stretch; }
@@ -290,7 +284,6 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
     width: 100%; padding: 10px; font-size: 16px;
     border: 1px solid #ccd; border-radius: 6px; text-align: right;
     -webkit-appearance: none;
-    /* Никаких transition/transform — чтобы Chrome не пересчитывал layout */
     transition: none;
   }
   .m-card .m-readings input:focus {
@@ -383,13 +376,7 @@ body.shooting .table-tools { display: none !important; }
 <body>
 <div class="wrap">
 
-  <div class="topbar">
-    <h1>⚡ Расчет за свет и интернет — кооператив</h1>
-    <div class="spacer"></div>
-    <div class="datetime">
-      📅 <b id="dateNow">—</b> &nbsp; 🕒 <b id="timeNow">—</b>
-    </div>
-  </div>
+  <h1>⚡ Расчет за свет и интернет — кооператив</h1>
 
   <div class="panel">
     <div class="settings">
@@ -651,7 +638,7 @@ body.shooting .table-tools { display: none !important; }
     </div>
 
     <div class="help-block"><b>8. Скриншот</b><br>
-      Кнопка «📸 Сделать скриншот» — сохраняет PNG с датой и периодом.
+      Кнопка «📸 Сделать скриншот» — сохраняет PNG с периодом.
       На телефоне снимок делается в широком виде.
     </div>
 
@@ -695,15 +682,6 @@ var lastBlob = null, lastFile = null, lastDataURL = null;
 var autosaveTimer = null;
 var history = [];
 var historyLock = false;
-
-function updateDateTime() {
-  var n = new Date();
-  function p(x){ return String(x).padStart(2,'0'); }
-  document.getElementById('dateNow').textContent = p(n.getDate()) + '.' + p(n.getMonth()+1) + '.' + n.getFullYear();
-  document.getElementById('timeNow').textContent = p(n.getHours()) + ':' + p(n.getMinutes()) + ':' + p(n.getSeconds());
-}
-setInterval(updateDateTime, 1000);
-updateDateTime();
 
 function isMobile() {
   return window.matchMedia("(max-width: 700px)").matches;
@@ -976,7 +954,6 @@ function renderRows() {
       '<td class="total num">0</td>';
     tbody.appendChild(tr);
   });
-  renderMobileCards();
 }
 
 function escapeHtml(s) {
@@ -985,14 +962,16 @@ function escapeHtml(s) {
   });
 }
 
-function renderMobileCards() {
+/* ============================================================
+   МОБИЛЬНЫЕ КАРТОЧКИ — СТРОЯТСЯ ОДИН РАЗ, БОЛЬШЕ НЕ ПЕРЕСОЗДАЮТСЯ
+   ============================================================ */
+var mobileCardsBuilt = false;
+
+function buildMobileCards() {
+  if (mobileCardsBuilt) return;
   var box = document.getElementById('mobileCards');
   if (!box) return;
-
-  if (!isMobile()) {
-    box.innerHTML = '';
-    return;
-  }
+  if (!isMobile()) return;
 
   box.innerHTML = '';
   if (!Array.isArray(state.users)) state.users = [];
@@ -1032,13 +1011,10 @@ function renderMobileCards() {
     box.appendChild(card);
   });
 
-  /* Обработчики полей ввода в карточках:
-     - при input НИЧЕГО не делаем (только синхронизация значения скрытого поля в таблице)
-     - пересчёт делаем только при blur (когда пользователь ушёл с поля) */
+  /* Обработчики на полях — НИЧЕГО не делают во время ввода, кроме копирования в скрытую таблицу */
   box.querySelectorAll('input').forEach(function(inp){
     inp.addEventListener('input', function(){
-      /* Синхронизируем только скрытое (невидимое) поле в основной таблице.
-         Никаких calculate() / scheduleAutosave() / pushHistory() — чтобы не тронуть DOM. */
+      /* Копируем значение в скрытую таблицу — но DOM карточки не трогаем */
       var idx = parseInt(this.dataset.idx);
       var field = this.dataset.field;
       var trs = document.querySelectorAll('#tbody tr');
@@ -1046,9 +1022,10 @@ function renderMobileCards() {
         var target = trs[idx].querySelector('.' + field);
         if (target) target.value = this.value;
       }
+      /* НИЧЕГО больше не вызываем — фокус сохранится */
     });
 
-    /* Пересчёт и история — только при уходе с поля */
+    /* Пересчёт и история — ТОЛЬКО при blur (когда пользователь ушёл с поля) */
     inp.addEventListener('blur', function(){
       calculate();
       scheduleAutosave();
@@ -1056,10 +1033,11 @@ function renderMobileCards() {
     });
   });
 
+  mobileCardsBuilt = true;
   updateMobileCardsTexts();
 }
 
-/* Обновляет ТОЛЬКО текстовые значения — и ТОЛЬКО если пользователь не в поле */
+/* Обновляет ТОЛЬКО текстовые значения в карточках */
 function updateMobileCardsTexts() {
   if (!isMobile()) return;
 
@@ -1090,6 +1068,16 @@ function updateMobileCardsTexts() {
       }
     }
   });
+}
+
+/* Перестроить карточки полностью — только при изменении состава пользователей */
+function rebuildMobileCards() {
+  mobileCardsBuilt = false;
+  var box = document.getElementById('mobileCards');
+  if (box) box.innerHTML = '';
+  if (isMobile()) {
+    buildMobileCards();
+  }
 }
 
 function shiftReadings() {
@@ -1124,6 +1112,16 @@ function shiftReadings() {
       var cur = parseFloat(tr.querySelector('.cur').value) || 0;
       tr.querySelector('.prev').value = cur;
       tr.querySelector('.cur').value = 0;
+    });
+    /* Синхронизируем значения в карточках БЕЗ их пересоздания */
+    var cards = document.querySelectorAll('#mobileCards .m-card');
+    Array.prototype.forEach.call(cards, function(card, i){
+      var tr = document.querySelectorAll('#tbody tr')[i];
+      if (!tr) return;
+      var prevInp = card.querySelector('input[data-field="prev"]');
+      var curInp  = card.querySelector('input[data-field="cur"]');
+      if (prevInp) prevInp.value = tr.querySelector('.prev').value;
+      if (curInp)  curInp.value  = tr.querySelector('.cur').value;
     });
     calculate();
     saveAll();
@@ -1170,6 +1168,7 @@ function confirmAddUser() {
     state.users.splice(pos - 1, 0, { name: name, prev: 0, cur: 0, disabled: false });
     closeAddModal();
     renderRows();
+    rebuildMobileCards();
     calculate();
     saveAll();
     scheduleAutosave();
@@ -1208,6 +1207,7 @@ function confirmEditUser() {
     state.users.splice(newPos - 1, 0, user);
     closeEditModal();
     renderRows();
+    rebuildMobileCards();
     calculate();
     saveAll();
     scheduleAutosave();
@@ -1222,6 +1222,7 @@ function deleteFromEdit() {
     state.users.splice(editIndex, 1);
     closeEditModal();
     renderRows();
+    rebuildMobileCards();
     calculate();
     saveAll();
     scheduleAutosave();
@@ -1456,6 +1457,16 @@ function resetReadings() {
     tr.querySelector('.prev').value = 0;
     tr.querySelector('.cur').value = 0;
   });
+  /* Синхронизируем карточки без пересоздания */
+  var cards = document.querySelectorAll('#mobileCards .m-card');
+  Array.prototype.forEach.call(cards, function(card, i){
+    var tr = document.querySelectorAll('#tbody tr')[i];
+    if (!tr) return;
+    var prevInp = card.querySelector('input[data-field="prev"]');
+    var curInp  = card.querySelector('input[data-field="cur"]');
+    if (prevInp) prevInp.value = 0;
+    if (curInp)  curInp.value  = 0;
+  });
   calculate();
   scheduleAutosave();
 }
@@ -1469,6 +1480,7 @@ function resetAll() {
   state.periodToMonth = null;   state.periodToYear = null;
   state.users = DEFAULT_OWNERS.map(function(n){ return { name: n, prev: 0, cur: 0, disabled: false }; });
   renderAll();
+  rebuildMobileCards();
   saveAll(false);
   showToast("❌ Всё сброшено (можно откатить Ctrl+Z)");
 }
@@ -1512,6 +1524,7 @@ function importJSON(ev) {
         return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
       });
       renderAll();
+      rebuildMobileCards();
       saveAll();
     } catch(err) { alert("Ошибка чтения: " + err.message); }
   };
@@ -1520,7 +1533,6 @@ function importJSON(ev) {
 }
 
 document.addEventListener('input', function(e){
-  /* Поля в мобильных карточках обрабатываются отдельно — не трогаем их */
   if (e.target.closest && e.target.closest('#mobileCards')) return;
   if (e.target.matches('input, select')) { calculate(); scheduleAutosave(); }
 });
@@ -1558,8 +1570,15 @@ document.addEventListener('keydown', function(e){
   });
 });
 
+/* При resize — НЕ пересоздаём карточки, если они уже построены */
 window.addEventListener('resize', function(){
-  renderMobileCards();
+  if (isMobile() && !mobileCardsBuilt) {
+    buildMobileCards();
+  } else if (!isMobile()) {
+    var box = document.getElementById('mobileCards');
+    if (box) box.innerHTML = '';
+    mobileCardsBuilt = false;
+  }
   updateMobileCardsTexts();
 });
 
@@ -1567,6 +1586,7 @@ window.addEventListener('resize', function(){
 initPeriodSelectors();
 loadFromStorage();
 renderAll();
+buildMobileCards();
 </script>
 
 </body>
