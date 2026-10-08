@@ -426,7 +426,6 @@ body.shooting .table-tools { display: none !important; }
           <select id="periodToYear"></select>
         </div>
       </div>
-      <!-- Служебное скрытое поле «Месяцев» — считает количество месяцев между датами -->
       <div class="field" style="display:none">
         <label>Месяцев</label>
         <input type="number" id="months" value="1" step="1" min="1">
@@ -623,7 +622,7 @@ body.shooting .table-tools { display: none !important; }
 
     <div class="help-block"><b>2. Период расчёта</b><br>
       Выберите <b>с какого месяца по какой</b> ведёте расчёт — из выпадающих меню.
-      Например, «Апрель 2026 — Май 2026». Период автоматически:
+      Период автоматически:
       умножает абонентскую плату за интернет на количество месяцев,
       отображается над таблицей и <b>попадает в скриншот</b>.
     </div>
@@ -635,11 +634,10 @@ body.shooting .table-tools { display: none !important; }
 
     <div class="help-block"><b>4. Кнопки над таблицей</b><br>
       <b>«➕ Добавить пользователя»</b> — слева. <b>«↪ Тек. → Пред.»</b> — справа.
-      Перед переносом проверяются ошибки.
     </div>
 
     <div class="help-block"><b>5. Откат — Ctrl+Z</b><br>
-      Нажмите <b>Ctrl+Z</b> (на Mac — <b>Cmd+Z</b>), чтобы откатить последнее изменение (до 50 шагов).
+      Нажмите <b>Ctrl+Z</b> (на Mac — <b>Cmd+Z</b>), чтобы откатить последнее изменение.
     </div>
 
     <div class="help-block"><b>6. Автосохранение</b><br>
@@ -651,8 +649,8 @@ body.shooting .table-tools { display: none !important; }
     </div>
 
     <div class="help-block"><b>8. Скриншот</b><br>
-      Кнопка «📸 Сделать скриншот» — сохраняет PNG с датой и временем и выбранным периодом.
-      На телефоне снимок делается в <b>широком виде</b> (как на компьютере).
+      Кнопка «📸 Сделать скриншот» — сохраняет PNG с датой и периодом.
+      На телефоне снимок делается в широком виде.
     </div>
 
     <div class="help-tip">
@@ -695,6 +693,9 @@ var lastBlob = null, lastFile = null, lastDataURL = null;
 var autosaveTimer = null;
 var history = [];
 var historyLock = false;
+
+/* Таймер пересчёта для полей в мобильных карточках */
+var mobileInputTimer = null;
 
 function updateDateTime() {
   var n = new Date();
@@ -780,7 +781,6 @@ function updatePeriodText() {
   var el = document.getElementById('periodText');
   if (el) el.textContent = text;
 
-  // Считаем количество месяцев между датами
   var diff = (yTo - yFrom) * 12 + (mTo - mFrom) + 1;
   if (diff < 1) diff = 1;
 
@@ -1036,6 +1036,7 @@ function renderMobileCards() {
     box.appendChild(card);
   });
 
+  /* Обработчики полей ввода — с ЗАДЕРЖКОЙ, чтобы не терять фокус и не закрывать клавиатуру */
   box.querySelectorAll('input').forEach(function(inp){
     inp.addEventListener('input', function(){
       var idx = parseInt(this.dataset.idx);
@@ -1045,18 +1046,22 @@ function renderMobileCards() {
         var target = trs[idx].querySelector('.' + field);
         if (target) target.value = this.value;
       }
-      calculate();
-      scheduleAutosave();
+      clearTimeout(mobileInputTimer);
+      mobileInputTimer = setTimeout(function(){
+        calculate();
+        scheduleAutosave();
+      }, 300);
     });
     inp.addEventListener('focusout', function(){
       pushHistory();
     });
   });
 
-  updateMobileCardsValues();
+  updateMobileCardsTexts();
 }
 
-function updateMobileCardsValues() {
+/* Обновляет ТОЛЬКО текстовые значения в карточках — НЕ трогает поля ввода */
+function updateMobileCardsTexts() {
   if (!isMobile()) return;
   var rows = document.querySelectorAll('#tbody tr');
   Array.prototype.forEach.call(rows, function(tr, i){
@@ -1374,7 +1379,7 @@ function calculate() {
     else if (lossKwh > 0) { st.textContent = 'потери ' + fmt(lossKwh) + ' кВт·ч'; st.className = 'badge'; }
     else { st.textContent = 'гаражи больше на ' + fmt(Math.abs(lossKwh)) + ' кВт·ч'; st.className = 'badge'; }
 
-    updateMobileCardsValues();
+    updateMobileCardsTexts();
   } catch(e) { console.error("calculate:", e); }
 }
 
@@ -1509,12 +1514,20 @@ function importJSON(ev) {
   ev.target.value = '';
 }
 
+/* ==================== СОБЫТИЯ ==================== */
+
 document.addEventListener('input', function(e){
+  /* Поля в мобильных карточках обрабатываются отдельно, с задержкой */
+  if (e.target.closest('#mobileCards')) return;
   if (e.target.matches('input, select')) { calculate(); scheduleAutosave(); }
 });
+
 document.addEventListener('focusout', function(e){
+  /* Поля в мобильных карточках — свои обработчики */
+  if (e.target.closest('#mobileCards')) return;
   if (e.target.matches('input.prev, input.cur')) pushHistory();
 });
+
 document.addEventListener('keydown', function(e){
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
     var modalOpen = ['addModalBg','editModalBg','thanksModalBg','shareModalBg','helpModalBg','errorsModalBg']
@@ -1532,6 +1545,7 @@ document.addEventListener('keydown', function(e){
     else if (editOpen) confirmEditUser();
   }
 });
+
 ['addModalBg','editModalBg','thanksModalBg','shareModalBg','helpModalBg','errorsModalBg'].forEach(function(id){
   var el = document.getElementById(id);
   if (!el) return;
@@ -1544,7 +1558,7 @@ document.addEventListener('keydown', function(e){
 
 window.addEventListener('resize', function(){
   renderMobileCards();
-  updateMobileCardsValues();
+  updateMobileCardsTexts();
 });
 
 /* ==================== СТАРТ ==================== */
