@@ -21,6 +21,32 @@ h1 { font-size: 22px; margin: 0 0 6px; }
 .field input, .field select { padding: 8px 10px; border: 1px solid #ccd; border-radius: 6px; font-size: 14px; width: 170px; }
 .field input:focus, .field select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
 
+/* ===== Период расчёта — выпадающие меню ===== */
+.month-year { display: flex; gap: 6px; }
+.month-year select {
+  padding: 8px 10px;
+  border: 1px solid #ccd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  cursor: pointer;
+}
+.month-year select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+#periodFromMonth, #periodToMonth { width: 130px; }
+#periodFromYear, #periodToYear { width: 90px; }
+
+.period-line {
+  background: #eef2f8;
+  border-left: 4px solid #3b82f6;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.period-line b { color: #1e40af; font-size: 15px; }
+
 .table-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px; }
 .table-tools .left, .table-tools .right { display: flex; gap: 8px; align-items: center; }
 .table-tools button { padding: 6px 12px; font-size: 12.5px; font-weight: 600; border-radius: 6px; }
@@ -76,14 +102,55 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
 
 .undo-hint { font-size: 11.5px; color: #777; margin-left: 4px; }
 
-.autosave-fab { position: fixed; bottom: 24px; right: 24px; z-index: 900; padding: 14px 20px; font-size: 15px; font-weight: 600; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,.25); background: #e5e7eb; color: #333; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; }
-.autosave-fab:hover { background: #d1d5db; }
+.autosave-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 900;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 22px;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.28);
+  background: #e5e7eb;
+  color: #333;
+  transition: all .2s;
+}
+.autosave-fab:hover { background: #d1d5db; transform: scale(1.05); }
 .autosave-fab.active { background: #16a34a; color: #fff; }
 .autosave-fab.active:hover { background: #15803d; }
-.autosave-fab .dot { width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; }
+.autosave-fab .dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #9ca3af;
+  border: 2px solid #fff;
+}
 .autosave-fab.active .dot { background: #fff; }
 
-.autosave-indicator { position: fixed; bottom: 90px; right: 24px; padding: 6px 12px; background: #dcfce7; color: #15803d; border-radius: 20px; font-size: 12.5px; opacity: 0; transition: opacity .3s; z-index: 899; font-weight: 600; }
+.autosave-indicator {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  padding: 6px 12px;
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 20px;
+  font-size: 12.5px;
+  opacity: 0;
+  transition: opacity .3s;
+  z-index: 899;
+  font-weight: 600;
+}
 .autosave-indicator.show { opacity: 1; }
 
 .hint { font-size: 12.5px; color: #666; margin-top: 8px; line-height: 1.5; }
@@ -148,12 +215,8 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
 .help-modal .help-block b { color: #1e40af; }
 .help-modal .help-tip { background: #fef9c3; border-left: 4px solid #eab308; border-radius: 8px; padding: 12px 16px; font-size: 13px; }
 
-/* Карточки для телефона — по умолчанию скрыты */
 .mobile-cards { display: none; }
 
-/* ============================================================
-   МОБИЛЬНЫЙ РЕЖИМ (до 700px)
-   ============================================================ */
 @media (max-width: 700px) {
 
   body { padding: 8px; }
@@ -166,6 +229,14 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
   .settings { flex-direction: column; gap: 10px; align-items: stretch; }
   .field { width: 100%; }
   .field input, .field select { width: 100%; font-size: 16px; padding: 10px; }
+
+  .month-year { width: 100%; }
+  .month-year select { flex: 1; font-size: 16px; }
+  #periodFromMonth, #periodToMonth { width: auto; }
+  #periodFromYear, #periodToYear { width: auto; }
+
+  .period-line { font-size: 13px; padding: 8px 10px; }
+  .period-line b { font-size: 14px; }
 
   .buttons { flex-direction: column; align-items: stretch; gap: 8px; }
   .buttons button { width: 100%; font-size: 15px; padding: 12px; }
@@ -235,8 +306,8 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
     border-top: 1px solid #e5e7eb; color: #1e40af;
   }
 
-  .autosave-fab { bottom: 12px; right: 12px; padding: 12px 16px; font-size: 13px; }
-  .autosave-indicator { bottom: 70px; right: 12px; font-size: 11.5px; }
+  .autosave-fab { bottom: 14px; right: 14px; width: 48px; height: 48px; font-size: 20px; }
+  .autosave-indicator { bottom: 72px; right: 14px; font-size: 11.5px; }
 
   .modal { min-width: auto; padding: 18px 18px; width: 95vw; }
   .help-modal { min-width: auto; }
@@ -245,10 +316,6 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
   .share-modal .messenger-grid { grid-template-columns: 1fr; }
 }
 
-/* ============================================================
-   ПРИНУДИТЕЛЬНЫЙ ДЕСКТОПНЫЙ РЕЖИМ ВО ВРЕМЯ СКРИНШОТА
-   (чтобы снимок на телефоне получался широким, как на ПК)
-   ============================================================ */
 body.shooting .mobile-cards { display: none !important; }
 body.shooting table#tbl { display: table !important; }
 body.shooting .wrap {
@@ -268,6 +335,9 @@ body.shooting .field select {
   font-size: 14px !important;
   padding: 8px 10px !important;
 }
+body.shooting .month-year select { width: auto !important; font-size: 14px !important; padding: 8px 10px !important; }
+body.shooting #periodFromMonth, body.shooting #periodToMonth { width: 130px !important; }
+body.shooting #periodFromYear, body.shooting #periodToYear { width: 90px !important; }
 body.shooting .buttons {
   flex-direction: row !important;
   align-items: center !important;
@@ -343,8 +413,23 @@ body.shooting .table-tools { display: none !important; }
         <input type="number" id="inet" value="220" step="0.01" min="0">
       </div>
       <div class="field">
+        <label>Период — с</label>
+        <div class="month-year">
+          <select id="periodFromMonth"></select>
+          <select id="periodFromYear"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Период — по</label>
+        <div class="month-year">
+          <select id="periodToMonth"></select>
+          <select id="periodToYear"></select>
+        </div>
+      </div>
+      <!-- Служебное скрытое поле «Месяцев» — считает количество месяцев между датами -->
+      <div class="field" style="display:none">
         <label>Месяцев</label>
-        <input type="number" id="months" value="1" step="1" min="1" style="width:80px">
+        <input type="number" id="months" value="1" step="1" min="1">
       </div>
     </div>
 
@@ -369,6 +454,10 @@ body.shooting .table-tools { display: none !important; }
   </div>
 
   <div class="panel" style="overflow-x:auto;">
+
+    <div class="period-line" id="periodLine">
+      Период расчёта: <b id="periodText">—</b>
+    </div>
 
     <div class="table-tools shoot-hide">
       <div class="left">
@@ -428,9 +517,9 @@ body.shooting .table-tools { display: none !important; }
 
 </div>
 
-<button class="autosave-fab" id="autosaveFab" onclick="toggleAutosave()">
+<button class="autosave-fab" id="autosaveFab" onclick="toggleAutosave()" title="Автосохранение">
+  <span id="autosaveIcon">💾</span>
   <span class="dot"></span>
-  <span id="autosaveLabel">Автосохранение: выкл</span>
 </button>
 <div class="autosave-indicator" id="autosaveIndicator">✅ Автосохранено</div>
 
@@ -529,38 +618,41 @@ body.shooting .table-tools { display: none !important; }
     <h3>❓ Помощь / Инструкция</h3>
 
     <div class="help-block"><b>1. Настройки сверху</b><br>
-      Тариф (5,46 ₽), показания главного счётчика, интернет (220 ₽/мес), месяцев.
+      Тариф (5,46 ₽), показания главного счётчика, интернет (220 ₽/мес), период расчёта.
     </div>
 
-    <div class="help-block"><b>2. Показания гаражей</b><br>
+    <div class="help-block"><b>2. Период расчёта</b><br>
+      Выберите <b>с какого месяца по какой</b> ведёте расчёт — из выпадающих меню.
+      Например, «Апрель 2026 — Май 2026». Период автоматически:
+      умножает абонентскую плату за интернет на количество месяцев,
+      отображается над таблицей и <b>попадает в скриншот</b>.
+    </div>
+
+    <div class="help-block"><b>3. Показания гаражей</b><br>
       «Пред.» — что было, «Тек.» — что сейчас. Расход и суммы считаются сами.
       Если Тек меньше Пред — строка <b>краснеет</b>.
     </div>
 
-    <div class="help-block"><b>3. Кнопки над таблицей</b><br>
+    <div class="help-block"><b>4. Кнопки над таблицей</b><br>
       <b>«➕ Добавить пользователя»</b> — слева. <b>«↪ Тек. → Пред.»</b> — справа.
       Перед переносом проверяются ошибки.
     </div>
 
-    <div class="help-block"><b>4. Откат — Ctrl+Z</b><br>
+    <div class="help-block"><b>5. Откат — Ctrl+Z</b><br>
       Нажмите <b>Ctrl+Z</b> (на Mac — <b>Cmd+Z</b>), чтобы откатить последнее изменение (до 50 шагов).
     </div>
 
-    <div class="help-block"><b>5. Автосохранение</b><br>
-      Кнопка внизу справа. Когда зелёная — данные сохраняются через 1 сек после изменения.
+    <div class="help-block"><b>6. Автосохранение</b><br>
+      Круглая кнопка 💾 внизу справа. Серая — выключено. Зелёная — включено.
     </div>
 
-    <div class="help-block"><b>6. Отключённые от интернета</b><br>
+    <div class="help-block"><b>7. Отключённые от интернета</b><br>
       Галочка в редакторе. Такие люди <b>не платят за интернет</b>, но свет и потери считаются как обычно.
     </div>
 
-    <div class="help-block"><b>7. Скриншот</b><br>
-      Кнопка «📸 Сделать скриншот» — сохраняет PNG с датой и временем.
+    <div class="help-block"><b>8. Скриншот</b><br>
+      Кнопка «📸 Сделать скриншот» — сохраняет PNG с датой и временем и выбранным периодом.
       На телефоне снимок делается в <b>широком виде</b> (как на компьютере).
-    </div>
-
-    <div class="help-block"><b>8. Мобильный режим</b><br>
-      Если открыть на телефоне — интерфейс автоматически превратится в <b>карточки</b> по одному человеку, крупные поля и кнопки.
     </div>
 
     <div class="help-tip">
@@ -585,10 +677,17 @@ var DEFAULT_OWNERS = [
 var LS_KEY = "svet_koperativ_v1";
 var MAX_HISTORY = 50;
 
+var MONTH_NAMES = [
+  "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+  "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+];
+
 var state = {
   tariff: 5.46, mainPrev: 0, mainCur: 0,
   lossMode: "percent", inet: 220, months: 1,
-  users: [], autosave: false
+  users: [], autosave: false,
+  periodFromMonth: null, periodFromYear: null,
+  periodToMonth: null, periodToYear: null
 };
 
 var editIndex = -1;
@@ -610,6 +709,91 @@ function isMobile() {
   return window.matchMedia("(max-width: 700px)").matches;
 }
 
+/* ============================================================
+   ВЫПАДАЮЩИЕ МЕНЮ ВЫБОРА МЕСЯЦА И ГОДА
+   ============================================================ */
+function initPeriodSelectors() {
+  var yearNow = new Date().getFullYear();
+  var years = [];
+  for (var y = yearNow - 5; y <= yearNow + 5; y++) years.push(y);
+
+  var monthFromSel = document.getElementById('periodFromMonth');
+  var monthToSel   = document.getElementById('periodToMonth');
+  var yearFromSel  = document.getElementById('periodFromYear');
+  var yearToSel    = document.getElementById('periodToYear');
+
+  [monthFromSel, monthToSel].forEach(function(sel){
+    sel.innerHTML = '';
+    MONTH_NAMES.forEach(function(name, idx){
+      var opt = document.createElement('option');
+      opt.value = idx + 1;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    });
+  });
+
+  [yearFromSel, yearToSel].forEach(function(sel){
+    sel.innerHTML = '';
+    years.forEach(function(y){
+      var opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      sel.appendChild(opt);
+    });
+  });
+
+  var now = new Date();
+  var m = now.getMonth() + 1;
+  var y = now.getFullYear();
+  monthFromSel.value = m;
+  monthToSel.value = m;
+  yearFromSel.value = y;
+  yearToSel.value = y;
+
+  [monthFromSel, monthToSel, yearFromSel, yearToSel].forEach(function(sel){
+    sel.addEventListener('change', function(){
+      updatePeriodText();
+      calculate();
+      scheduleAutosave();
+    });
+  });
+
+  updatePeriodText();
+}
+
+function updatePeriodText() {
+  var mFrom = parseInt(document.getElementById('periodFromMonth').value) || 1;
+  var yFrom = parseInt(document.getElementById('periodFromYear').value)  || new Date().getFullYear();
+  var mTo   = parseInt(document.getElementById('periodToMonth').value)   || 1;
+  var yTo   = parseInt(document.getElementById('periodToYear').value)    || new Date().getFullYear();
+
+  var fromStr = String(mFrom).padStart(2, '0') + '.' + yFrom;
+  var toStr   = String(mTo).padStart(2, '0') + '.' + yTo;
+
+  var text;
+  if (fromStr === toStr) {
+    text = MONTH_NAMES[mFrom - 1] + ' ' + yFrom + ' (' + fromStr + ')';
+  } else {
+    text = MONTH_NAMES[mFrom - 1] + ' ' + yFrom + ' — ' + MONTH_NAMES[mTo - 1] + ' ' + yTo +
+           ' (' + fromStr + ' — ' + toStr + ')';
+  }
+  var el = document.getElementById('periodText');
+  if (el) el.textContent = text;
+
+  // Считаем количество месяцев между датами
+  var diff = (yTo - yFrom) * 12 + (mTo - mFrom) + 1;
+  if (diff < 1) diff = 1;
+
+  var monthsEl = document.getElementById('months');
+  if (monthsEl) monthsEl.value = diff;
+
+  state.months = diff;
+  state.periodFromMonth = mFrom;
+  state.periodFromYear  = yFrom;
+  state.periodToMonth   = mTo;
+  state.periodToYear    = yTo;
+}
+
 function pushHistory() {
   if (historyLock) return;
   try {
@@ -621,6 +805,10 @@ function pushHistory() {
       lossMode: document.getElementById('lossMode').value,
       inet: parseFloat(document.getElementById('inet').value) || 0,
       months: parseInt(document.getElementById('months').value) || 1,
+      periodFromMonth: parseInt(document.getElementById('periodFromMonth').value) || 1,
+      periodFromYear:  parseInt(document.getElementById('periodFromYear').value)  || new Date().getFullYear(),
+      periodToMonth:   parseInt(document.getElementById('periodToMonth').value)   || 1,
+      periodToYear:    parseInt(document.getElementById('periodToYear').value)    || new Date().getFullYear(),
       users: state.users.map(function(u){
         return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
       })
@@ -640,9 +828,13 @@ function undoAction() {
     document.getElementById('mainCur').value = s.mainCur;
     document.getElementById('lossMode').value = s.lossMode;
     document.getElementById('inet').value = s.inet;
-    document.getElementById('months').value = s.months;
+    if (s.periodFromMonth) document.getElementById('periodFromMonth').value = s.periodFromMonth;
+    if (s.periodFromYear)  document.getElementById('periodFromYear').value  = s.periodFromYear;
+    if (s.periodToMonth)   document.getElementById('periodToMonth').value   = s.periodToMonth;
+    if (s.periodToYear)    document.getElementById('periodToYear').value    = s.periodToYear;
     state.users = Array.isArray(s.users) ? s.users : [];
   } catch(e) { console.error(e); }
+  updatePeriodText();
   renderRows();
   calculate();
   historyLock = false;
@@ -673,6 +865,10 @@ function loadFromStorage() {
     state.inet     = parseFloat(d.inet)     || 220;
     state.months   = parseInt(d.months)     || 1;
     state.autosave = !!d.autosave;
+    state.periodFromMonth = d.periodFromMonth || null;
+    state.periodFromYear  = d.periodFromYear  || null;
+    state.periodToMonth   = d.periodToMonth   || null;
+    state.periodToYear    = d.periodToYear    || null;
     if (Array.isArray(d.users) && d.users.length > 0) {
       state.users = d.users.map(function(u){
         return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
@@ -694,6 +890,10 @@ function saveAll(showNote) {
     state.lossMode = document.getElementById('lossMode').value;
     state.inet     = parseFloat(document.getElementById('inet').value) || 0;
     state.months   = parseInt(document.getElementById('months').value) || 1;
+    state.periodFromMonth = parseInt(document.getElementById('periodFromMonth').value) || 1;
+    state.periodFromYear  = parseInt(document.getElementById('periodFromYear').value)  || new Date().getFullYear();
+    state.periodToMonth   = parseInt(document.getElementById('periodToMonth').value)   || 1;
+    state.periodToYear    = parseInt(document.getElementById('periodToYear').value)    || new Date().getFullYear();
     var rows = document.querySelectorAll('#tbody tr');
     state.users = Array.prototype.map.call(rows, function(tr, i){
       var old = state.users[i] || {};
@@ -713,12 +913,22 @@ function toggleAutosave() {
   updateAutosaveUI();
   try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
 }
+
 function updateAutosaveUI() {
   var fab = document.getElementById('autosaveFab');
-  var lbl = document.getElementById('autosaveLabel');
-  if (state.autosave) { fab.classList.add('active'); lbl.textContent = "Автосохранение: вкл"; }
-  else { fab.classList.remove('active'); lbl.textContent = "Автосохранение: выкл"; }
+  var icon = document.getElementById('autosaveIcon');
+  if (!fab) return;
+  if (state.autosave) {
+    fab.classList.add('active');
+    fab.title = "Автосохранение: ВКЛ (нажмите, чтобы выключить)";
+    if (icon) icon.textContent = "💾";
+  } else {
+    fab.classList.remove('active');
+    fab.title = "Автосохранение: ВЫКЛ (нажмите, чтобы включить)";
+    if (icon) icon.textContent = "💾";
+  }
 }
+
 function scheduleAutosave() {
   if (!state.autosave) return;
   clearTimeout(autosaveTimer);
@@ -737,7 +947,12 @@ function renderAll() {
     document.getElementById('mainCur').value  = state.mainCur;
     document.getElementById('lossMode').value = state.lossMode;
     document.getElementById('inet').value     = state.inet;
-    document.getElementById('months').value   = state.months;
+
+    if (state.periodFromMonth != null) document.getElementById('periodFromMonth').value = state.periodFromMonth;
+    if (state.periodFromYear != null)  document.getElementById('periodFromYear').value  = state.periodFromYear;
+    if (state.periodToMonth != null)   document.getElementById('periodToMonth').value   = state.periodToMonth;
+    if (state.periodToYear != null)    document.getElementById('periodToYear').value    = state.periodToYear;
+    updatePeriodText();
   } catch(e) { console.error(e); }
   renderRows();
   calculate();
@@ -1047,10 +1262,14 @@ function downloadOnly() {
   link.click();
   setTimeout(function(){ URL.revokeObjectURL(link.href); }, 3000);
 }
+
 function shareTo(messenger) {
   if (!lastFile) return;
   if (navigator.canShare && navigator.canShare({ files: [lastFile] })) {
-    navigator.share({ files: [lastFile], title: "Расчёт за свет", text: "Расчёт по электроэнергии и интернету" }).then(closeShareModal).catch(function(){});
+    navigator.share({
+      files: [lastFile],
+      title: "Расчёт за свет"
+    }).then(closeShareModal).catch(function(){});
     return;
   }
   downloadOnly();
@@ -1159,9 +1378,6 @@ function calculate() {
   } catch(e) { console.error("calculate:", e); }
 }
 
-/* ============================================================
-   СКРИНШОТ — с принудительным десктопным видом на телефоне
-   ============================================================ */
 function makeScreenshot() {
   if (typeof html2canvas === 'undefined') {
     alert("Библиотека html2canvas не загрузилась. Проверьте интернет.");
@@ -1172,11 +1388,9 @@ function makeScreenshot() {
   document.body.classList.add('shooting');
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
 
-  // Дать браузеру перерисовать в десктопный вид (по CSS body.shooting ...)
   setTimeout(function(){
     var target = document.querySelector('.wrap');
 
-    // Принудительно задаём ширину 1200px, чтобы html2canvas снял широкую таблицу
     var oldWidth = target.style.width;
     var oldMinWidth = target.style.minWidth;
     var oldMaxWidth = target.style.maxWidth;
@@ -1196,7 +1410,6 @@ function makeScreenshot() {
         scrollX: 0,
         scrollY: -window.scrollY
       }).then(function(canvas){
-        // Возвращаем прежние размеры
         target.style.width = oldWidth;
         target.style.minWidth = oldMinWidth;
         target.style.maxWidth = oldMaxWidth;
@@ -1242,6 +1455,8 @@ function resetAll() {
   pushHistory();
   state.tariff = 5.46; state.mainPrev = 0; state.mainCur = 0;
   state.lossMode = "percent"; state.inet = 220; state.months = 1;
+  state.periodFromMonth = null; state.periodFromYear = null;
+  state.periodToMonth = null;   state.periodToYear = null;
   state.users = DEFAULT_OWNERS.map(function(n){ return { name: n, prev: 0, cur: 0, disabled: false }; });
   renderAll();
   saveAll(false);
@@ -1279,6 +1494,10 @@ function importJSON(ev) {
       state.inet     = parseFloat(d.inet)     || 220;
       state.months   = parseInt(d.months)     || 1;
       state.autosave = !!d.autosave;
+      state.periodFromMonth = d.periodFromMonth || null;
+      state.periodFromYear  = d.periodFromYear  || null;
+      state.periodToMonth   = d.periodToMonth   || null;
+      state.periodToYear    = d.periodToYear    || null;
       state.users = d.users.map(function(u){
         return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
       });
@@ -1328,6 +1547,8 @@ window.addEventListener('resize', function(){
   updateMobileCardsValues();
 });
 
+/* ==================== СТАРТ ==================== */
+initPeriodSelectors();
 loadFromStorage();
 renderAll();
 </script>
