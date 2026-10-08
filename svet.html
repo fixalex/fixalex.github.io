@@ -42,6 +42,17 @@ h1 { font-size: 22px; margin: 0 0 14px; }
 }
 .period-line b { color: #1e40af; font-size: 15px; }
 
+.period-months {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 10px;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
 .table-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px; }
 .table-tools .left, .table-tools .right { display: flex; gap: 8px; align-items: center; }
 .table-tools button { padding: 6px 12px; font-size: 12.5px; font-weight: 600; border-radius: 6px; }
@@ -230,6 +241,7 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
 
   .period-line { font-size: 13px; padding: 8px 10px; }
   .period-line b { font-size: 14px; }
+  .period-months { font-size: 11.5px; padding: 2px 8px; margin-left: 6px; }
 
   .buttons { flex-direction: column; align-items: stretch; gap: 8px; }
   .buttons button { width: 100%; font-size: 15px; padding: 12px; }
@@ -447,6 +459,7 @@ body.shooting .table-tools { display: none !important; }
 
     <div class="period-line" id="periodLine">
       Период расчёта: <b id="periodText">—</b>
+      <span class="period-months" id="periodMonths">—</span>
     </div>
 
     <div class="table-tools shoot-hide">
@@ -612,8 +625,12 @@ body.shooting .table-tools { display: none !important; }
     </div>
 
     <div class="help-block"><b>2. Период расчёта</b><br>
-      Выберите <b>с какого месяца по какой</b> ведёте расчёт. Период умножает абонентскую плату
-      за интернет на количество месяцев и <b>попадает в скриншот</b>.
+      Выберите <b>с какого месяца по какой</b> ведёте расчёт. Период:
+      <ul>
+        <li>показывает <b>количество месяцев</b> между датами (например, «2 месяца»),</li>
+        <li>умножает абонентскую плату за интернет на это количество,</li>
+        <li><b>попадает в скриншот</b>.</li>
+      </ul>
     </div>
 
     <div class="help-block"><b>3. Показания гаражей</b><br>
@@ -638,7 +655,7 @@ body.shooting .table-tools { display: none !important; }
     </div>
 
     <div class="help-block"><b>8. Скриншот</b><br>
-      Кнопка «📸 Сделать скриншот» — сохраняет PNG с периодом.
+      Кнопка «📸 Сделать скриншот» — сохраняет PNG с периодом и количеством месяцев.
       На телефоне снимок делается в широком виде.
     </div>
 
@@ -766,6 +783,16 @@ function updatePeriodText() {
   state.periodFromYear  = yFrom;
   state.periodToMonth   = mTo;
   state.periodToYear    = yTo;
+
+  /* Вывод количества месяцев со склонением */
+  var mEl = document.getElementById('periodMonths');
+  if (mEl) {
+    var word;
+    if (diff === 1) word = 'месяц';
+    else if (diff >= 2 && diff <= 4) word = 'месяца';
+    else word = 'месяцев';
+    mEl.textContent = '— ' + diff + ' ' + word;
+  }
 }
 
 function pushHistory() {
@@ -962,9 +989,6 @@ function escapeHtml(s) {
   });
 }
 
-/* ============================================================
-   МОБИЛЬНЫЕ КАРТОЧКИ — СТРОЯТСЯ ОДИН РАЗ, БОЛЬШЕ НЕ ПЕРЕСОЗДАЮТСЯ
-   ============================================================ */
 var mobileCardsBuilt = false;
 
 function buildMobileCards() {
@@ -1011,10 +1035,8 @@ function buildMobileCards() {
     box.appendChild(card);
   });
 
-  /* Обработчики на полях — НИЧЕГО не делают во время ввода, кроме копирования в скрытую таблицу */
   box.querySelectorAll('input').forEach(function(inp){
     inp.addEventListener('input', function(){
-      /* Копируем значение в скрытую таблицу — но DOM карточки не трогаем */
       var idx = parseInt(this.dataset.idx);
       var field = this.dataset.field;
       var trs = document.querySelectorAll('#tbody tr');
@@ -1022,10 +1044,7 @@ function buildMobileCards() {
         var target = trs[idx].querySelector('.' + field);
         if (target) target.value = this.value;
       }
-      /* НИЧЕГО больше не вызываем — фокус сохранится */
     });
-
-    /* Пересчёт и история — ТОЛЬКО при blur (когда пользователь ушёл с поля) */
     inp.addEventListener('blur', function(){
       calculate();
       scheduleAutosave();
@@ -1037,7 +1056,6 @@ function buildMobileCards() {
   updateMobileCardsTexts();
 }
 
-/* Обновляет ТОЛЬКО текстовые значения в карточках */
 function updateMobileCardsTexts() {
   if (!isMobile()) return;
 
@@ -1070,7 +1088,6 @@ function updateMobileCardsTexts() {
   });
 }
 
-/* Перестроить карточки полностью — только при изменении состава пользователей */
 function rebuildMobileCards() {
   mobileCardsBuilt = false;
   var box = document.getElementById('mobileCards');
@@ -1113,7 +1130,6 @@ function shiftReadings() {
       tr.querySelector('.prev').value = cur;
       tr.querySelector('.cur').value = 0;
     });
-    /* Синхронизируем значения в карточках БЕЗ их пересоздания */
     var cards = document.querySelectorAll('#mobileCards .m-card');
     Array.prototype.forEach.call(cards, function(card, i){
       var tr = document.querySelectorAll('#tbody tr')[i];
@@ -1457,7 +1473,6 @@ function resetReadings() {
     tr.querySelector('.prev').value = 0;
     tr.querySelector('.cur').value = 0;
   });
-  /* Синхронизируем карточки без пересоздания */
   var cards = document.querySelectorAll('#mobileCards .m-card');
   Array.prototype.forEach.call(cards, function(card, i){
     var tr = document.querySelectorAll('#tbody tr')[i];
@@ -1570,7 +1585,6 @@ document.addEventListener('keydown', function(e){
   });
 });
 
-/* При resize — НЕ пересоздаём карточки, если они уже построены */
 window.addEventListener('resize', function(){
   if (isMobile() && !mobileCardsBuilt) {
     buildMobileCards();
