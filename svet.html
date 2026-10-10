@@ -17,18 +17,112 @@ h1 { font-size: 22px; margin: 0 0 14px; }
 .field input, .field select { padding: 8px 10px; border: 1px solid #ccd; border-radius: 6px; font-size: 14px; width: 170px; }
 .field input:focus, .field select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
 
-.month-year { display: flex; gap: 6px; }
-.month-year select {
-  padding: 8px 10px;
-  border: 1px solid #ccd;
+/* ===== Поле выбора периода ===== */
+.period-field { position: relative; }
+#periodInput {
+  width: 240px;
+  cursor: pointer;
+  background: #fff;
+  font-weight: 600;
+  color: #1e40af;
+}
+#periodInput:focus { outline: none; }
+
+/* ===== Попап календаря месяцев ===== */
+.period-popup {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  border: 1px solid #e0e4ec;
+  z-index: 500;
+  padding: 12px;
+  width: 300px;
+}
+.period-popup.show { display: block; }
+
+.pp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 4px 0;
+}
+.pp-nav {
+  padding: 4px 12px;
+  border: none;
+  background: #eef2f8;
+  color: #333;
   border-radius: 6px;
   font-size: 14px;
-  background: #fff;
   cursor: pointer;
+  font-weight: 700;
 }
-.month-year select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
-#periodFromMonth, #periodToMonth { width: 130px; }
-#periodFromYear, #periodToYear { width: 90px; }
+.pp-nav:hover { background: #d1d5db; }
+.pp-year {
+  font-weight: 700;
+  font-size: 16px;
+  color: #1e40af;
+}
+
+.pp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.pp-month {
+  padding: 10px 4px;
+  text-align: center;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #333;
+  font-size: 13px;
+  cursor: pointer;
+  transition: .15s;
+  user-select: none;
+  border: 2px solid transparent;
+  font-weight: 600;
+}
+.pp-month:hover { background: #dbeafe; }
+.pp-month.pp-start,
+.pp-month.pp-end {
+  background: #dc2626;
+  color: #fff;
+  border-color: #b91c1c;
+}
+.pp-month.pp-in-range {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.pp-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eef0f4;
+}
+.pp-footer button { padding: 6px 12px; font-size: 12.5px; border-radius: 6px; cursor: pointer; border: none; color: #fff; }
+.pp-footer button.gray { background: #e5e7eb; color: #333; }
+.pp-footer button.gray:hover { background: #d1d5db; }
+.pp-footer button.green { background: #16a34a; }
+.pp-footer button.green:hover { background: #15803d; }
+
+.pp-hint {
+  font-size: 11.5px;
+  color: #777;
+  text-align: center;
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  line-height: 1.4;
+}
 
 .period-line {
   background: #eef2f8;
@@ -233,11 +327,21 @@ button.wa { background: #25d366; } button.wa:hover { background: #1ebe5d; }
   .settings { flex-direction: column; gap: 10px; align-items: stretch; }
   .field { width: 100%; }
   .field input, .field select { width: 100%; font-size: 16px; padding: 10px; }
+  #periodInput { width: 100% !important; font-size: 16px; }
 
-  .month-year { width: 100%; }
-  .month-year select { flex: 1; font-size: 16px; }
-  #periodFromMonth, #periodToMonth { width: auto; }
-  #periodFromYear, #periodToYear { width: auto; }
+  .period-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92vw;
+    max-width: 340px;
+    z-index: 1500;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    margin-top: 0;
+  }
+  .pp-month { padding: 14px 6px; font-size: 14px; }
+  .pp-footer button { padding: 10px 16px; font-size: 14px; }
 
   .period-line { font-size: 13px; padding: 8px 10px; }
   .period-line b { font-size: 14px; }
@@ -344,9 +448,7 @@ body.shooting .field select {
   font-size: 14px !important;
   padding: 8px 10px !important;
 }
-body.shooting .month-year select { width: auto !important; font-size: 14px !important; padding: 8px 10px !important; }
-body.shooting #periodFromMonth, body.shooting #periodToMonth { width: 130px !important; }
-body.shooting #periodFromYear, body.shooting #periodToYear { width: 90px !important; }
+body.shooting #periodInput { width: 240px !important; font-size: 14px !important; padding: 8px 10px !important; }
 body.shooting .buttons {
   flex-direction: row !important;
   align-items: center !important;
@@ -415,18 +517,23 @@ body.shooting .table-tools { display: none !important; }
         <label>Интернет для Видео наблюдения, руб/мес</label>
         <input type="number" id="inet" value="220" step="0.01" min="0">
       </div>
-      <div class="field">
-        <label>Период — с</label>
-        <div class="month-year">
-          <select id="periodFromMonth"></select>
-          <select id="periodFromYear"></select>
-        </div>
-      </div>
-      <div class="field">
-        <label>Период — по</label>
-        <div class="month-year">
-          <select id="periodToMonth"></select>
-          <select id="periodToYear"></select>
+      <div class="field period-field">
+        <label>Период расчёта</label>
+        <input type="text" id="periodInput" readonly placeholder="Кликните, чтобы выбрать" value="">
+        <div class="period-popup" id="periodPopup">
+          <div class="pp-header">
+            <button type="button" class="pp-nav" id="ppPrevYear">◀</button>
+            <span class="pp-year" id="ppYear">2026</span>
+            <button type="button" class="pp-nav" id="ppNextYear">▶</button>
+          </div>
+          <div class="pp-grid" id="ppGrid"></div>
+          <div class="pp-hint" id="ppHint">
+            Кликните месяц начала, затем месяц конца.
+          </div>
+          <div class="pp-footer">
+            <button type="button" class="gray" onclick="clearPeriod()">Очистить</button>
+            <button type="button" class="green" onclick="closePeriodPopup()">Готово</button>
+          </div>
         </div>
       </div>
       <div class="field" style="display:none">
@@ -625,12 +732,14 @@ body.shooting .table-tools { display: none !important; }
     </div>
 
     <div class="help-block"><b>2. Период расчёта</b><br>
-      Выберите <b>с какого месяца по какой</b> ведёте расчёт. Период:
+      Нажмите на поле <b>«Период расчёта»</b> — откроется календарь месяцев.
       <ul>
-        <li>показывает <b>количество месяцев</b> между датами (например, «2 месяца»),</li>
-        <li>умножает абонентскую плату за интернет на это количество,</li>
-        <li><b>попадает в скриншот</b>.</li>
+        <li><b>1-й клик</b> по месяцу — начало периода (закрашивается красным).</li>
+        <li><b>2-й клик</b> по другому месяцу — конец периода, диапазон подсветится.</li>
+        <li><b>3-й клик</b> — новый выбор начала.</li>
       </ul>
+      Стрелки <b>◀ ▶</b> переключают год. Период показывает количество месяцев
+      и попадает в скриншот.
     </div>
 
     <div class="help-block"><b>3. Показания гаражей</b><br>
@@ -656,7 +765,6 @@ body.shooting .table-tools { display: none !important; }
 
     <div class="help-block"><b>8. Скриншот</b><br>
       Кнопка «📸 Сделать скриншот» — сохраняет PNG с периодом и количеством месяцев.
-      На телефоне снимок делается в широком виде.
     </div>
 
     <div class="help-tip">
@@ -700,91 +808,193 @@ var autosaveTimer = null;
 var history = [];
 var historyLock = false;
 
+/* ============================================================
+   ПЕРИОД — переменные
+   periodPicking:
+     'from' — ждём клик по началу (после 1-го клика переходит в 'to')
+     'to'   — ждём клик по концу (после 2-го клика переходит в 'from')
+   ============================================================ */
+var periodFromMonth = new Date().getMonth() + 1;
+var periodFromYear  = new Date().getFullYear();
+var periodToMonth   = periodFromMonth;
+var periodToYear    = periodFromYear;
+var calendarYear    = periodFromYear;
+var periodPicking   = 'from';
+
 function isMobile() {
   return window.matchMedia("(max-width: 700px)").matches;
 }
 
-function initPeriodSelectors() {
-  var yearNow = new Date().getFullYear();
-  var years = [];
-  for (var y = yearNow - 5; y <= yearNow + 5; y++) years.push(y);
+/* ============================================================
+   КАЛЕНДАРЬ ВЫБОРА ПЕРИОДА
+   ============================================================ */
+function openPeriodPopup() {
+  var popup = document.getElementById('periodPopup');
+  if (!popup) return;
+  calendarYear = periodFromYear;
+  periodPicking = 'from';
+  document.getElementById('ppYear').textContent = calendarYear;
+  renderPeriodGrid();
+  popup.classList.add('show');
+  setTimeout(function(){
+    document.addEventListener('mousedown', outsidePeriodClick);
+  }, 0);
+}
 
-  var monthFromSel = document.getElementById('periodFromMonth');
-  var monthToSel   = document.getElementById('periodToMonth');
-  var yearFromSel  = document.getElementById('periodFromYear');
-  var yearToSel    = document.getElementById('periodToYear');
+function closePeriodPopup() {
+  var popup = document.getElementById('periodPopup');
+  if (popup) popup.classList.remove('show');
+  document.removeEventListener('mousedown', outsidePeriodClick);
+}
 
-  [monthFromSel, monthToSel].forEach(function(sel){
-    sel.innerHTML = '';
-    MONTH_NAMES.forEach(function(name, idx){
-      var opt = document.createElement('option');
-      opt.value = idx + 1;
-      opt.textContent = name;
-      sel.appendChild(opt);
-    });
-  });
+function outsidePeriodClick(e) {
+  var popup = document.getElementById('periodPopup');
+  var input = document.getElementById('periodInput');
+  if (!popup) return;
+  if (popup.contains(e.target)) return;
+  if (input && input.contains(e.target)) return;
+  closePeriodPopup();
+}
 
-  [yearFromSel, yearToSel].forEach(function(sel){
-    sel.innerHTML = '';
-    years.forEach(function(y){
-      var opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      sel.appendChild(opt);
-    });
-  });
+function changeCalendarYear(delta) {
+  calendarYear += delta;
+  document.getElementById('ppYear').textContent = calendarYear;
+  renderPeriodGrid();
+}
 
-  var now = new Date();
-  var m = now.getMonth() + 1;
-  var y = now.getFullYear();
-  monthFromSel.value = m;
-  monthToSel.value = m;
-  yearFromSel.value = y;
-  yearToSel.value = y;
+function renderPeriodGrid() {
+  var grid = document.getElementById('ppGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
 
-  [monthFromSel, monthToSel, yearFromSel, yearToSel].forEach(function(sel){
-    sel.addEventListener('change', function(){
-      updatePeriodText();
-      calculate();
-      scheduleAutosave();
-    });
-  });
+  var monthsShort = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  var a = periodFromYear * 12 + periodFromMonth;
+  var b = periodToYear   * 12 + periodToMonth;
+  var singleMode = (a === b);
 
+  for (var m = 1; m <= 12; m++) {
+    (function(month){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pp-month';
+      btn.textContent = monthsShort[month - 1];
+
+      var isStart = (calendarYear === periodFromYear && month === periodFromMonth);
+      var isEnd   = (calendarYear === periodToYear   && month === periodToMonth);
+      var cur = calendarYear * 12 + month;
+      var inRange = cur >= a && cur <= b;
+
+      if (singleMode && isStart) {
+        btn.classList.add('pp-start');
+      } else if (isStart) {
+        btn.classList.add('pp-start');
+      } else if (isEnd) {
+        btn.classList.add('pp-end');
+      } else if (inRange) {
+        btn.classList.add('pp-in-range');
+      }
+
+      btn.addEventListener('click', function(){ clickMonth(month); });
+      grid.appendChild(btn);
+    })(m);
+  }
+
+  /* Обновляем подсказку */
+  var hint = document.getElementById('ppHint');
+  if (hint) {
+    if (periodPicking === 'from') {
+      hint.textContent = 'Выберите месяц начала периода.';
+    } else {
+      hint.textContent = 'Выберите месяц конца периода (или тот же месяц для одного).';
+    }
+  }
+}
+
+/* ============================================================
+   ЛОГИКА КЛИКОВ — 1-я версия:
+   • 1-й клик → начало
+   • 2-й клик → конец (диапазон)
+   • 3-й клик → новое начало
+   ============================================================ */
+function clickMonth(month) {
+  if (periodPicking === 'from') {
+    // Установить начало
+    periodFromMonth = month;
+    periodFromYear  = calendarYear;
+    periodToMonth   = month;
+    periodToYear    = calendarYear;
+    periodPicking = 'to';
+  } else {
+    // Установить конец
+    var a = periodFromYear * 12 + periodFromMonth;
+    var b = calendarYear * 12 + month;
+    if (b < a) {
+      // Кликнули раньше начала — меняем местами
+      periodToMonth   = periodFromMonth;
+      periodToYear    = periodFromYear;
+      periodFromMonth = month;
+      periodFromYear  = calendarYear;
+    } else {
+      periodToMonth = month;
+      periodToYear  = calendarYear;
+    }
+    periodPicking = 'from';
+  }
+
+  renderPeriodGrid();
   updatePeriodText();
+  calculate();
+  scheduleAutosave();
+}
+
+function clearPeriod() {
+  var now = new Date();
+  periodFromMonth = now.getMonth() + 1;
+  periodFromYear  = now.getFullYear();
+  periodToMonth   = periodFromMonth;
+  periodToYear    = periodFromYear;
+  periodPicking   = 'from';
+  calendarYear    = periodFromYear;
+  document.getElementById('ppYear').textContent = calendarYear;
+  renderPeriodGrid();
+  updatePeriodText();
+  calculate();
+  scheduleAutosave();
 }
 
 function updatePeriodText() {
-  var mFrom = parseInt(document.getElementById('periodFromMonth').value) || 1;
-  var yFrom = parseInt(document.getElementById('periodFromYear').value)  || new Date().getFullYear();
-  var mTo   = parseInt(document.getElementById('periodToMonth').value)   || 1;
-  var yTo   = parseInt(document.getElementById('periodToYear').value)    || new Date().getFullYear();
+  var fromStr = String(periodFromMonth).padStart(2, '0') + '.' + periodFromYear;
+  var toStr   = String(periodToMonth).padStart(2, '0') + '.' + periodToYear;
 
-  var fromStr = String(mFrom).padStart(2, '0') + '.' + yFrom;
-  var toStr   = String(mTo).padStart(2, '0') + '.' + yTo;
+  var input = document.getElementById('periodInput');
+  if (input) {
+    if (fromStr === toStr) input.value = fromStr;
+    else input.value = fromStr + ' — ' + toStr;
+  }
 
   var text;
   if (fromStr === toStr) {
-    text = MONTH_NAMES[mFrom - 1] + ' ' + yFrom + ' (' + fromStr + ')';
+    text = MONTH_NAMES[periodFromMonth - 1] + ' ' + periodFromYear + ' (' + fromStr + ')';
   } else {
-    text = MONTH_NAMES[mFrom - 1] + ' ' + yFrom + ' — ' + MONTH_NAMES[mTo - 1] + ' ' + yTo +
+    text = MONTH_NAMES[periodFromMonth - 1] + ' ' + periodFromYear +
+           ' — ' + MONTH_NAMES[periodToMonth - 1] + ' ' + periodToYear +
            ' (' + fromStr + ' — ' + toStr + ')';
   }
   var el = document.getElementById('periodText');
   if (el) el.textContent = text;
 
-  var diff = (yTo - yFrom) * 12 + (mTo - mFrom) + 1;
+  var diff = (periodToYear - periodFromYear) * 12 + (periodToMonth - periodFromMonth) + 1;
   if (diff < 1) diff = 1;
 
   var monthsEl = document.getElementById('months');
   if (monthsEl) monthsEl.value = diff;
 
   state.months = diff;
-  state.periodFromMonth = mFrom;
-  state.periodFromYear  = yFrom;
-  state.periodToMonth   = mTo;
-  state.periodToYear    = yTo;
+  state.periodFromMonth = periodFromMonth;
+  state.periodFromYear  = periodFromYear;
+  state.periodToMonth   = periodToMonth;
+  state.periodToYear    = periodToYear;
 
-  /* Вывод количества месяцев со склонением */
   var mEl = document.getElementById('periodMonths');
   if (mEl) {
     var word;
@@ -795,6 +1005,9 @@ function updatePeriodText() {
   }
 }
 
+/* ============================================================
+   ИСТОРИЯ
+   ============================================================ */
 function pushHistory() {
   if (historyLock) return;
   try {
@@ -806,10 +1019,10 @@ function pushHistory() {
       lossMode: document.getElementById('lossMode').value,
       inet: parseFloat(document.getElementById('inet').value) || 0,
       months: parseInt(document.getElementById('months').value) || 1,
-      periodFromMonth: parseInt(document.getElementById('periodFromMonth').value) || 1,
-      periodFromYear:  parseInt(document.getElementById('periodFromYear').value)  || new Date().getFullYear(),
-      periodToMonth:   parseInt(document.getElementById('periodToMonth').value)   || 1,
-      periodToYear:    parseInt(document.getElementById('periodToYear').value)    || new Date().getFullYear(),
+      periodFromMonth: periodFromMonth,
+      periodFromYear:  periodFromYear,
+      periodToMonth:   periodToMonth,
+      periodToYear:    periodToYear,
       users: state.users.map(function(u){
         return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
       })
@@ -829,10 +1042,10 @@ function undoAction() {
     document.getElementById('mainCur').value = s.mainCur;
     document.getElementById('lossMode').value = s.lossMode;
     document.getElementById('inet').value = s.inet;
-    if (s.periodFromMonth) document.getElementById('periodFromMonth').value = s.periodFromMonth;
-    if (s.periodFromYear)  document.getElementById('periodFromYear').value  = s.periodFromYear;
-    if (s.periodToMonth)   document.getElementById('periodToMonth').value   = s.periodToMonth;
-    if (s.periodToYear)    document.getElementById('periodToYear').value    = s.periodToYear;
+    if (s.periodFromMonth) periodFromMonth = s.periodFromMonth;
+    if (s.periodFromYear)  periodFromYear  = s.periodFromYear;
+    if (s.periodToMonth)   periodToMonth   = s.periodToMonth;
+    if (s.periodToYear)    periodToYear    = s.periodToYear;
     state.users = Array.isArray(s.users) ? s.users : [];
   } catch(e) { console.error(e); }
   updatePeriodText();
@@ -851,6 +1064,9 @@ function showToast(msg) {
   setTimeout(function(){ t.remove(); }, 2200);
 }
 
+/* ============================================================
+   ХРАНИЛИЩЕ
+   ============================================================ */
 function loadFromStorage() {
   var raw = localStorage.getItem(LS_KEY);
   if (!raw) {
@@ -866,10 +1082,12 @@ function loadFromStorage() {
     state.inet     = parseFloat(d.inet)     || 220;
     state.months   = parseInt(d.months)     || 1;
     state.autosave = !!d.autosave;
-    state.periodFromMonth = d.periodFromMonth || null;
-    state.periodFromYear  = d.periodFromYear  || null;
-    state.periodToMonth   = d.periodToMonth   || null;
-    state.periodToYear    = d.periodToYear    || null;
+
+    if (d.periodFromMonth) periodFromMonth = d.periodFromMonth;
+    if (d.periodFromYear)  periodFromYear  = d.periodFromYear;
+    if (d.periodToMonth)   periodToMonth   = d.periodToMonth;
+    if (d.periodToYear)    periodToYear    = d.periodToYear;
+
     if (Array.isArray(d.users) && d.users.length > 0) {
       state.users = d.users.map(function(u){
         return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
@@ -891,10 +1109,10 @@ function saveAll(showNote) {
     state.lossMode = document.getElementById('lossMode').value;
     state.inet     = parseFloat(document.getElementById('inet').value) || 0;
     state.months   = parseInt(document.getElementById('months').value) || 1;
-    state.periodFromMonth = parseInt(document.getElementById('periodFromMonth').value) || 1;
-    state.periodFromYear  = parseInt(document.getElementById('periodFromYear').value)  || new Date().getFullYear();
-    state.periodToMonth   = parseInt(document.getElementById('periodToMonth').value)   || 1;
-    state.periodToYear    = parseInt(document.getElementById('periodToYear').value)    || new Date().getFullYear();
+    state.periodFromMonth = periodFromMonth;
+    state.periodFromYear  = periodFromYear;
+    state.periodToMonth   = periodToMonth;
+    state.periodToYear    = periodToYear;
     var rows = document.querySelectorAll('#tbody tr');
     state.users = Array.prototype.map.call(rows, function(tr, i){
       var old = state.users[i] || {};
@@ -909,6 +1127,9 @@ function saveAll(showNote) {
   } catch(e) { console.error(e); }
 }
 
+/* ============================================================
+   АВТОСОХРАНЕНИЕ
+   ============================================================ */
 function toggleAutosave() {
   state.autosave = !state.autosave;
   updateAutosaveUI();
@@ -941,6 +1162,9 @@ function scheduleAutosave() {
   }, 1000);
 }
 
+/* ============================================================
+   ОТРИСОВКА
+   ============================================================ */
 function renderAll() {
   try {
     document.getElementById('tariff').value   = state.tariff;
@@ -948,11 +1172,6 @@ function renderAll() {
     document.getElementById('mainCur').value  = state.mainCur;
     document.getElementById('lossMode').value = state.lossMode;
     document.getElementById('inet').value     = state.inet;
-
-    if (state.periodFromMonth != null) document.getElementById('periodFromMonth').value = state.periodFromMonth;
-    if (state.periodFromYear != null)  document.getElementById('periodFromYear').value  = state.periodFromYear;
-    if (state.periodToMonth != null)   document.getElementById('periodToMonth').value   = state.periodToMonth;
-    if (state.periodToYear != null)    document.getElementById('periodToYear').value    = state.periodToYear;
     updatePeriodText();
   } catch(e) { console.error(e); }
   renderRows();
@@ -989,6 +1208,9 @@ function escapeHtml(s) {
   });
 }
 
+/* ============================================================
+   МОБИЛЬНЫЕ КАРТОЧКИ
+   ============================================================ */
 var mobileCardsBuilt = false;
 
 function buildMobileCards() {
@@ -1097,6 +1319,9 @@ function rebuildMobileCards() {
   }
 }
 
+/* ============================================================
+   ПЕРЕНОС
+   ============================================================ */
 function shiftReadings() {
   var rows = document.querySelectorAll('#tbody tr');
   var errors = [];
@@ -1155,6 +1380,9 @@ function gotoError(idx) {
 }
 function closeErrorsModal() { document.getElementById('errorsModalBg').classList.remove('show'); }
 
+/* ============================================================
+   ДОБАВЛЕНИЕ
+   ============================================================ */
 function openAddModal() {
   try {
     document.getElementById('addName').value = '';
@@ -1191,6 +1419,9 @@ function confirmAddUser() {
   } catch(e) { alert("Ошибка при добавлении: " + e.message); }
 }
 
+/* ============================================================
+   РЕДАКТИРОВАНИЕ
+   ============================================================ */
 function openEditModal(idx) {
   try {
     editIndex = idx;
@@ -1245,6 +1476,9 @@ function deleteFromEdit() {
   } catch(e) { alert("Ошибка: " + e.message); }
 }
 
+/* ============================================================
+   СПАСИБО
+   ============================================================ */
 function openThanksModal() {
   document.getElementById('thanksModalBg').classList.add('show');
   var btn = document.getElementById('copyBtn');
@@ -1273,9 +1507,15 @@ function fallbackCopy(text, cb) {
   document.body.removeChild(ta);
 }
 
+/* ============================================================
+   ПОМОЩЬ
+   ============================================================ */
 function openHelpModal() { document.getElementById('helpModalBg').classList.add('show'); }
 function closeHelpModal() { document.getElementById('helpModalBg').classList.remove('show'); }
 
+/* ============================================================
+   СКРИНШОТ
+   ============================================================ */
 function openShareModal() {
   document.getElementById('sharePreview').src = lastDataURL;
   document.getElementById('shareModalBg').classList.add('show');
@@ -1464,6 +1704,9 @@ function makeScreenshot() {
   }, 150);
 }
 
+/* ============================================================
+   СБРОС / ЭКСПОРТ / ИМПОРТ
+   ============================================================ */
 function resetReadings() {
   if (!confirm("Сбросить все показания?")) return;
   pushHistory();
@@ -1474,9 +1717,7 @@ function resetReadings() {
     tr.querySelector('.cur').value = 0;
   });
   var cards = document.querySelectorAll('#mobileCards .m-card');
-  Array.prototype.forEach.call(cards, function(card, i){
-    var tr = document.querySelectorAll('#tbody tr')[i];
-    if (!tr) return;
+  Array.prototype.forEach.call(cards, function(card){
     var prevInp = card.querySelector('input[data-field="prev"]');
     var curInp  = card.querySelector('input[data-field="cur"]');
     if (prevInp) prevInp.value = 0;
@@ -1491,8 +1732,13 @@ function resetAll() {
   pushHistory();
   state.tariff = 5.46; state.mainPrev = 0; state.mainCur = 0;
   state.lossMode = "percent"; state.inet = 220; state.months = 1;
-  state.periodFromMonth = null; state.periodFromYear = null;
-  state.periodToMonth = null;   state.periodToYear = null;
+
+  var now = new Date();
+  periodFromMonth = now.getMonth() + 1;
+  periodFromYear  = now.getFullYear();
+  periodToMonth   = periodFromMonth;
+  periodToYear    = periodFromYear;
+
   state.users = DEFAULT_OWNERS.map(function(n){ return { name: n, prev: 0, cur: 0, disabled: false }; });
   renderAll();
   rebuildMobileCards();
@@ -1531,10 +1777,12 @@ function importJSON(ev) {
       state.inet     = parseFloat(d.inet)     || 220;
       state.months   = parseInt(d.months)     || 1;
       state.autosave = !!d.autosave;
-      state.periodFromMonth = d.periodFromMonth || null;
-      state.periodFromYear  = d.periodFromYear  || null;
-      state.periodToMonth   = d.periodToMonth   || null;
-      state.periodToYear    = d.periodToYear    || null;
+
+      if (d.periodFromMonth) periodFromMonth = d.periodFromMonth;
+      if (d.periodFromYear)  periodFromYear  = d.periodFromYear;
+      if (d.periodToMonth)   periodToMonth   = d.periodToMonth;
+      if (d.periodToYear)    periodToYear    = d.periodToYear;
+
       state.users = d.users.map(function(u){
         return { name: (u && u.name) ? u.name : "—", prev: (u && u.prev) || 0, cur: (u && u.cur) || 0, disabled: !!(u && u.disabled) };
       });
@@ -1547,6 +1795,9 @@ function importJSON(ev) {
   ev.target.value = '';
 }
 
+/* ============================================================
+   СОБЫТИЯ
+   ============================================================ */
 document.addEventListener('input', function(e){
   if (e.target.closest && e.target.closest('#mobileCards')) return;
   if (e.target.matches('input, select')) { calculate(); scheduleAutosave(); }
@@ -1565,7 +1816,7 @@ document.addEventListener('keydown', function(e){
     return;
   }
   if (e.key === 'Escape') {
-    closeAddModal(); closeEditModal(); closeThanksModal(); closeShareModal(); closeHelpModal(); closeErrorsModal();
+    closeAddModal(); closeEditModal(); closeThanksModal(); closeShareModal(); closeHelpModal(); closeErrorsModal(); closePeriodPopup();
   }
   var addOpen = document.getElementById('addModalBg').classList.contains('show');
   var editOpen = document.getElementById('editModalBg').classList.contains('show');
@@ -1596,9 +1847,28 @@ window.addEventListener('resize', function(){
   updateMobileCardsTexts();
 });
 
-/* ==================== СТАРТ ==================== */
-initPeriodSelectors();
+/* ============================================================
+   СТАРТ
+   ============================================================ */
 loadFromStorage();
+
+var periodInput = document.getElementById('periodInput');
+if (periodInput) {
+  periodInput.addEventListener('click', function(e){
+    e.stopPropagation();
+    var popup = document.getElementById('periodPopup');
+    if (popup.classList.contains('show')) {
+      closePeriodPopup();
+    } else {
+      openPeriodPopup();
+    }
+  });
+}
+var ppPrev = document.getElementById('ppPrevYear');
+var ppNext = document.getElementById('ppNextYear');
+if (ppPrev) ppPrev.addEventListener('click', function(){ changeCalendarYear(-1); });
+if (ppNext) ppNext.addEventListener('click', function(){ changeCalendarYear(1); });
+
 renderAll();
 buildMobileCards();
 </script>
